@@ -1,37 +1,42 @@
-import bcrypt
 import sqlite3
-from backend.database import get_connection
+import bcrypt
+from backend.database import DB_NAME
 
-def create_user(email, password):
-    conn = get_connection()
-    cur = conn.cursor()
+def hash_password(password):
+    return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
 
-    hashed_password = bcrypt.hashpw(password.encode(), bcrypt.gensalt())
-
-    try:
-        cur.execute(
-            "INSERT INTO users (email, password) VALUES (?, ?)",
-            (email, hashed_password)
-        )
-        conn.commit()
-        return True
-    except sqlite3.IntegrityError:
-        return False
-    finally:
-        conn.close()
+def check_password(stored_hash, user_input):
+    return bcrypt.checkpw(user_input.encode('utf-8'), stored_hash)
 
 def authenticate_user(email, password):
-    conn = get_connection()
+    conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
-
-    cur.execute(
-        "SELECT password FROM users WHERE email = ?",
-        (email,)
-    )
+    cur.execute("SELECT password FROM users WHERE email=?", (email,))
     row = cur.fetchone()
     conn.close()
+    if row:
+        return check_password(row[0], password)
+    return False
 
-    if row is None:
+def create_user(email, password):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+    cur.execute("SELECT email FROM users WHERE email=?", (email,))
+    if cur.fetchone():
+        conn.close()
         return False
+    hashed = hash_password(password)
+    cur.execute("INSERT INTO users (email, password) VALUES (?, ?)", (email, hashed))
+    conn.commit()
+    conn.close()
+    return True
 
-    return bcrypt.checkpw(password.encode(), row[0])
+def update_password(email, new_password):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+    hashed = hash_password(new_password)
+    cur.execute("UPDATE users SET password=? WHERE email=?", (hashed, email))
+    updated = cur.rowcount > 0
+    conn.commit()
+    conn.close()
+    return updated
