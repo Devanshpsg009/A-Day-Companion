@@ -226,7 +226,7 @@ class FocusTimerApp(ctk.CTkToplevel):
             
             # This popup BLOCKS the code, so the music keeps playing 
             # until the user clicks OK.
-            messagebox.showinfo("ALARM", "Wake Up! Time to go!")
+            messagebox.showinfo("ALARM", "Time's up! Click OK to stop the alarm.")
             
             # Once OK is clicked, music stops
             pygame.mixer.music.stop()

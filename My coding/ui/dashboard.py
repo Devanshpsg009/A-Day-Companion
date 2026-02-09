@@ -45,7 +45,7 @@ class DashboardApp(ctk.CTk):
 
         ctk.CTkLabel(
             card, 
-            text="Welcome to Your Companion", 
+            text="A Day Companion Welcomes You!", 
             font=("Helvetica", 24, "bold"), 
             text_color="white"
         ).pack(pady=(30, 10), padx=50)
