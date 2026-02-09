@@ -1,11 +1,10 @@
 import customtkinter as ctk
-import tkinter as tk
 from tkinter import messagebox
-from PIL import Image, ImageFilter, ImageDraw, ImageTk
+from PIL import Image
+import os
 from backend.auth import create_user
 from backend.database import create_users_table
 import re
-import os
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -14,104 +13,93 @@ class SignupApp(ctk.CTk):
     def __init__(self):
         super().__init__()
 
-        self.geometry("600x800")
-        self.title("Sign Up")
+        self.geometry("900x600")
+        self.title("A Day Companion - Sign Up")
         self.resizable(False, False)
 
-        bg_path = os.path.join("assets", "lsbg.png")
-        
+        # Grid: 2 Columns
+        self.grid_columnconfigure(0, weight=1)
+        self.grid_columnconfigure(1, weight=1)
+        self.grid_rowconfigure(0, weight=1)
+
+        # --- LEFT SIDE (IMAGE) ---
+        self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
+        self.image_frame.grid(row=0, column=0, sticky="nsew")
+
         try:
-            bg_source = Image.open(bg_path).resize((600, 800))
-            self.bg_image = ctk.CTkImage(bg_source, size=(600, 800))
-            bg_label = ctk.CTkLabel(self, image=self.bg_image, text="")
-            bg_label.place(x=0, y=0, relwidth=1, relheight=1)
+            bg_path = os.path.join("assets", "lsbg.png")
+            pil_img = Image.open(bg_path)
+            self.side_image = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(450, 600))
+            img_label = ctk.CTkLabel(self.image_frame, image=self.side_image, text="")
+            img_label.place(x=0, y=0, relwidth=1, relheight=1)
+        except Exception:
+            ctk.CTkLabel(self.image_frame, text="Join Us", font=("Helvetica", 30)).place(relx=0.5, rely=0.5)
 
-            # --- GENERATE GLASS EFFECT ---
-            card_w, card_h = 480, 420
-            card_x = (600 - card_w) // 2
-            card_y = int(800 * 0.22)
+        # --- RIGHT SIDE (FORM) ---
+        self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")
+        self.form_frame.grid(row=0, column=1, sticky="nsew")
 
-            crop = bg_source.crop((card_x, card_y, card_x + card_w, card_y + card_h))
-            blur = crop.filter(ImageFilter.GaussianBlur(20))
-            overlay = Image.new("RGBA", (card_w, card_h), (0, 0, 0, 100))
-            blur = Image.alpha_composite(blur.convert("RGBA"), overlay)
+        self.center_box = ctk.CTkFrame(self.form_frame, fg_color="transparent")
+        self.center_box.place(relx=0.5, rely=0.5, anchor="center")
 
-            mask = Image.new("L", (card_w, card_h), 0)
-            ImageDraw.Draw(mask).rounded_rectangle([(0, 0), (card_w, card_h)], 30, fill=255)
+        # Header
+        ctk.CTkLabel(self.center_box, text="Create Account", font=("Helvetica", 32, "bold"), text_color="white").pack(pady=(0, 10))
+        ctk.CTkLabel(self.center_box, text="Start your productivity journey", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 30))
 
-            final = crop.convert("RGBA")
-            final.paste(blur, (0, 0), mask=mask)
-            self.card_image_tk = ImageTk.PhotoImage(final)
+        # Email
+        self.email_entry = ctk.CTkEntry(
+            self.center_box, width=300, height=50, 
+            placeholder_text="Email Address",
+            fg_color="#1e293b", border_color="#334155", text_color="white"
+        )
+        self.email_entry.pack(pady=10)
 
-            # --- CONTAINER FRAME (The Fix) ---
-            self.main_frame = ctk.CTkFrame(self, width=card_w, height=card_h, fg_color="transparent")
-            self.main_frame.place(relx=0.5, rely=0.22, anchor="n") 
+        # --- Password Row (Entry + Toggle) ---
+        pass_frame = ctk.CTkFrame(self.center_box, fg_color="transparent")
+        pass_frame.pack(pady=10)
 
-            canvas = tk.Canvas(self.main_frame, width=card_w, height=card_h, bd=0, highlightthickness=0)
-            canvas.place(x=0, y=0)
-            canvas.create_image(0, 0, image=self.card_image_tk, anchor="nw")
-            
-            canvas.create_text(card_w / 2, 40, text="Create Account", font=("Helvetica", 30, "bold"), fill="white")
-            canvas.create_text(card_w / 2, 85, text="Create your account using email",
-                               font=("Helvetica", 13), fill="#dddddd")
+        self.password_entry = ctk.CTkEntry(
+            pass_frame, width=220, height=50, 
+            placeholder_text="Password", show="*",
+            fg_color="#1e293b", border_color="#334155", text_color="white"
+        )
+        self.password_entry.pack(side="left", padx=(0, 10))
 
-            # Inputs (Relative to main_frame)
-            self.email_entry = ctk.CTkEntry(
-                self.main_frame, width=360, height=45, 
-                placeholder_text="Email address",
-                fg_color="#3a3a3a", border_width=0, text_color="white"
-            )
-            self.email_entry.place(x=60, y=130)
+        self.pass_visible = False
+        self.toggle_btn = ctk.CTkButton(
+            pass_frame, text="SHOW", width=70, height=50,
+            fg_color="#1e293b", hover_color="#334155", border_color="#334155", border_width=2,
+            command=self.toggle_password
+        )
+        self.toggle_btn.pack(side="left")
 
-            self.password_entry = ctk.CTkEntry(
-                self.main_frame, width=360, height=45, 
-                placeholder_text="Password", show="*",
-                fg_color="#3a3a3a", border_width=0, text_color="white"
-            )
-            self.password_entry.place(x=60, y=190)
+        # Signup Button
+        ctk.CTkButton(
+            self.center_box, text="Create Account", width=300, height=50,
+            fg_color="#3b82f6", hover_color="#2563eb",
+            font=("Helvetica", 15, "bold"),
+            command=self.signup_action
+        ).pack(pady=20)
 
-            # Toggle Button
-            self.password_visible = False
-            self.toggle_btn = ctk.CTkButton(
-                self.main_frame, text="SHOW", width=60, height=45,
-                fg_color="#3a3a3a", hover_color="#4a4a4a",
-                text_color="white", command=self.toggle_password
-            )
-            self.toggle_btn.place(x=360, y=190)
-
-            # Sign Up Button
-            ctk.CTkButton(
-                self.main_frame, text="Sign Up", width=360, height=45,
-                fg_color="#1f538d", hover_color="#153860",
-                command=self.signup_action
-            ).place(x=60, y=255)
-
-            # Footer
-            canvas.create_text(card_w / 2, 315, text="or", fill="#aaaaaa", font=("Arial", 12))
-            canvas.create_line(110, 315, 210, 315, fill="#aaaaaa")
-            canvas.create_line(270, 315, 370, 315, fill="#aaaaaa")
-
-            # Login Button
-            ctk.CTkButton(
-                self.main_frame, text="Login", width=360, height=45,
-                fg_color="#ffffff", text_color="#000000",
-                hover_color="#e6e6e6",
-                command=self.login_action
-            ).place(x=60, y=345)
-
-        except Exception as e:
-            print(f"Error loading UI: {e}")
-            self.configure(fg_color="#0f172a")
+        # Login Link
+        footer = ctk.CTkFrame(self.center_box, fg_color="transparent")
+        footer.pack(pady=10)
+        ctk.CTkLabel(footer, text="Already a member?", text_color="#94a3b8").pack(side="left")
+        ctk.CTkButton(
+            footer, text="Login", width=60, fg_color="transparent", 
+            text_color="#38bdf8", hover_color="#1e293b",
+            command=self.login_action
+        ).pack(side="left")
 
     def toggle_password(self):
-        if self.password_visible:
+        if self.pass_visible:
             self.password_entry.configure(show="*")
             self.toggle_btn.configure(text="SHOW")
-            self.password_visible = False
+            self.pass_visible = False
         else:
             self.password_entry.configure(show="")
             self.toggle_btn.configure(text="HIDE")
-            self.password_visible = True
+            self.pass_visible = True
 
     def valid_email(self, email):
         return re.match(r"[^@]+@[^@]+\.[^@]+", email)
@@ -125,20 +113,15 @@ class SignupApp(ctk.CTk):
             return
 
         if not self.valid_email(email):
-            messagebox.showerror("Invalid Email", "Please enter a valid email address")
+            messagebox.showerror("Error", "Invalid email address")
             return
 
         create_users_table()
 
         if create_user(email, password):
-            res = messagebox.askyesno(
-                "Signup Successful",
-                "Account created successfully.\nDo you want to login now?"
-            )
+            res = messagebox.askyesno("Success", "Account created! Login now?")
             if res:
                 self.login_action()
-            else:
-                self.destroy()
         else:
             messagebox.showerror("Error", "User already exists")
 

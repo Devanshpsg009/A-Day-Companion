@@ -7,10 +7,15 @@ import pygame
 class FocusTimerApp(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
-        pygame.mixer.init()
+        
+        # Initialize mixer immediately with safe defaults
+        try:
+            pygame.mixer.init()
+        except Exception as e:
+            print(f"Sound Error: {e}")
 
         self.geometry("500x500")
-        self.title("Modern Clock")
+        self.title("Focus Timer")
         self.resizable(False, False)
 
         self.tabs = ctk.CTkTabview(self)
@@ -122,8 +127,7 @@ class FocusTimerApp(ctk.CTkToplevel):
         elif self.timer_total == 0 and self.timer_running:
             self.timer_running = False
             self.trigger_alarm_sound() 
-            messagebox.showinfo("Timer", "Time's up!")
-    
+            
     def build_alarm(self):
         tab = self.tabs.tab("Alarm")
         self.alarm_active = False
@@ -200,17 +204,32 @@ class FocusTimerApp(ctk.CTkToplevel):
             if now == self.alarm_target_time:
                 self.trigger_alarm_sound()
                 self.alarm_active = False
+                self.alarm_status.configure(text="ALARM CLEARED", text_color="gray")
+        
+        self.after(1000, self.check_alarm_loop)
 
     def trigger_alarm_sound(self):
-        sound_path = os.path.join("assets", "alarm.mp3")
+        # 1. ROBUST PATH FINDING
+        # This looks for 'assets' relative to the main project folder
+        base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        sound_path = os.path.join(base_dir, "assets", "alarm.mp3")
+
+        print(f"DEBUG: Looking for sound at: {sound_path}") # Debug print
+
+        if not os.path.exists(sound_path):
+            messagebox.showerror("Audio Error", f"Could not find alarm.mp3 at:\n{sound_path}")
+            return
 
         try:
-            if os.path.exists(sound_path):
-                pygame.mixer.music.load(sound_path)
-                pygame.mixer.music.play(loops=-1)
-            else:
-                print("Sound file not found!")
+            pygame.mixer.music.load(sound_path)
+            pygame.mixer.music.play(loops=-1) # Loop forever
+            
+            # This popup BLOCKS the code, so the music keeps playing 
+            # until the user clicks OK.
+            messagebox.showinfo("ALARM", "Wake Up! Time to go!")
+            
+            # Once OK is clicked, music stops
+            pygame.mixer.music.stop()
+            
         except Exception as e:
-            print(f"Audio Error: {e}")
-        messagebox.showinfo("ALARM", "Wake Up! Time to go!")
-        pygame.mixer.music.stop()
+            messagebox.showerror("Sound Error", f"Failed to play sound: {e}")
