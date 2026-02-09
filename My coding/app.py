@@ -15,7 +15,8 @@ PACKAGES = {
     "python-dotenv": "dotenv",
     "groq": "groq",
     "pygame": "pygame",
-    "matplotlib": "matplotlib"
+    "matplotlib": "matplotlib",
+    "plyer": "plyer"
 }
 
 
