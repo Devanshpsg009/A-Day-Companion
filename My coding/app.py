@@ -2,6 +2,12 @@ import sys
 import subprocess
 import importlib.util
 
+try:
+    from ctypes import windll
+    windll.shcore.SetProcessDpiAwareness(1)
+except:
+    pass
+
 PACKAGES = {
     "customtkinter": "customtkinter",
     "Pillow": "PIL",
