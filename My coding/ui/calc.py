@@ -4,7 +4,7 @@ import math
 ctk.set_appearance_mode("Dark")
 ctk.set_default_color_theme("dark-blue")
 
-class CalculatorApp(ctk.CTk):
+class CalculatorApp(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
 
@@ -130,6 +130,14 @@ class CalculatorApp(ctk.CTk):
 
     def calculate(self):
         try:
+            if any(x in self.expr for x in ["import", "exec", "eval", "os", "sys"]):
+                self.expr = ""
+                self.display.configure(state="normal")
+                self.display.delete(0, "end")
+                self.display.insert(0, "Illegal Input")
+                self.display.configure(state="readonly")
+                return
+
             open_count = self.expr.count('(')
             close_count = self.expr.count(')')
             if open_count > close_count:
@@ -163,7 +171,3 @@ class CalculatorApp(ctk.CTk):
             self.display.insert(0, "Error")
             self.display.configure(state="readonly")
             self.expr = ""
-
-if __name__ == "__main__":
-    app = CalculatorApp()
-    app.mainloop()

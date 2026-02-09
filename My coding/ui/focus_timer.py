@@ -4,7 +4,7 @@ import os
 from tkinter import messagebox
 import pygame
 
-class FocusTimerApp(ctk.CTk):
+class FocusTimerApp(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
         pygame.mixer.init()
@@ -23,6 +23,7 @@ class FocusTimerApp(ctk.CTk):
         self.build_stopwatch()
         self.build_timer()
         self.build_alarm()
+    
     def build_stopwatch(self):
         tab = self.tabs.tab("Stopwatch")
         self.sw_seconds = 0
@@ -59,6 +60,7 @@ class FocusTimerApp(ctk.CTk):
             s = self.sw_seconds % 60
             self.sw_label.configure(text=f"{h:02}:{m:02}:{s:02}")
             self.after(1000, self.update_sw)
+    
     def build_timer(self):
         tab = self.tabs.tab("Timer")
         self.timer_running = False
@@ -121,6 +123,7 @@ class FocusTimerApp(ctk.CTk):
             self.timer_running = False
             self.trigger_alarm_sound() 
             messagebox.showinfo("Timer", "Time's up!")
+    
     def build_alarm(self):
         tab = self.tabs.tab("Alarm")
         self.alarm_active = False
@@ -198,6 +201,16 @@ class FocusTimerApp(ctk.CTk):
                 self.trigger_alarm_sound()
                 self.alarm_active = False
 
-if __name__ == "__main__":
-    app = FocusTimerApp()
-    app.mainloop()
+    def trigger_alarm_sound(self):
+        sound_path = os.path.join("assets", "alarm.mp3")
+
+        try:
+            if os.path.exists(sound_path):
+                pygame.mixer.music.load(sound_path)
+                pygame.mixer.music.play(loops=-1)
+            else:
+                print("Sound file not found!")
+        except Exception as e:
+            print(f"Audio Error: {e}")
+        messagebox.showinfo("ALARM", "Wake Up! Time to go!")
+        pygame.mixer.music.stop()
