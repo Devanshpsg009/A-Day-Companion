@@ -39,7 +39,7 @@ class DashboardApp(ctk.CTk):
 
     def show_profile_form(self):
         for w in self.winfo_children(): w.destroy()
-        
+
         card = ctk.CTkFrame(self, fg_color="#1e293b", corner_radius=20, border_color="#334155", border_width=2)
         card.place(relx=0.5, rely=0.5, anchor="center")
 
@@ -99,18 +99,14 @@ class DashboardApp(ctk.CTk):
     def setup_main_dashboard(self, profile):
         for w in self.winfo_children():
             w.destroy()
-        
+
         self.user_name = profile[0]
 
-        # 1. Smart Font Logic
-        # Default big size
-        name_font_size = 50 
-        
-        # If name is somewhat long (e.g. "Devansh Pratap Singh")
+        name_font_size = 50
+
         if len(self.user_name) > 15:
             name_font_size = 32
-            
-        # If name is very long (e.g. "Devansh Pratap Singh Gahlot")
+
         if len(self.user_name) > 25:
             name_font_size = 26
 
@@ -121,7 +117,6 @@ class DashboardApp(ctk.CTk):
         self.left_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.left_frame.grid(row=0, column=0, sticky="nsew", padx=40, pady=40)
         
-        # 2. Greeting with Dynamic Font & Wrap
         ctk.CTkLabel(
             self.left_frame, 
             text=f"Hello,\n{self.user_name}", 
@@ -129,7 +124,7 @@ class DashboardApp(ctk.CTk):
             text_color="white",
             justify="left",
             anchor="w",
-            wraplength=400  # <--- Ensure long names wrap to next line
+            wraplength=400
         ).pack(fill="x", pady=(20, 10))
 
         ctk.CTkFrame(self.left_frame, height=2, fg_color="#334155").pack(fill="x", pady=20)

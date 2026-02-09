@@ -7,8 +7,6 @@ import pygame
 class FocusTimerApp(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
-        
-        # Initialize mixer immediately with safe defaults
         try:
             pygame.mixer.init()
         except Exception as e:
@@ -209,12 +207,10 @@ class FocusTimerApp(ctk.CTkToplevel):
         self.after(1000, self.check_alarm_loop)
 
     def trigger_alarm_sound(self):
-        # 1. ROBUST PATH FINDING
-        # This looks for 'assets' relative to the main project folder
         base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
         sound_path = os.path.join(base_dir, "assets", "alarm.mp3")
 
-        print(f"DEBUG: Looking for sound at: {sound_path}") # Debug print
+        print(f"DEBUG: Looking for sound at: {sound_path}")
 
         if not os.path.exists(sound_path):
             messagebox.showerror("Audio Error", f"Could not find alarm.mp3 at:\n{sound_path}")
@@ -222,14 +218,8 @@ class FocusTimerApp(ctk.CTkToplevel):
 
         try:
             pygame.mixer.music.load(sound_path)
-            pygame.mixer.music.play(loops=-1) # Loop forever
-            
-            # This popup BLOCKS the code, so the music keeps playing 
-            # until the user clicks OK.
+            pygame.mixer.music.play(loops=-1)
             messagebox.showinfo("ALARM", "Time's up! Click OK to stop the alarm.")
-            
-            # Once OK is clicked, music stops
             pygame.mixer.music.stop()
-            
         except Exception as e:
             messagebox.showerror("Sound Error", f"Failed to play sound: {e}")

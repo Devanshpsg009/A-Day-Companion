@@ -17,12 +17,10 @@ class SignupApp(ctk.CTk):
         self.title("A Day Companion - Sign Up")
         self.resizable(False, False)
 
-        # Grid: 2 Columns
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
 
-        # --- LEFT SIDE (IMAGE) ---
         self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
         self.image_frame.grid(row=0, column=0, sticky="nsew")
 
@@ -35,18 +33,16 @@ class SignupApp(ctk.CTk):
         except Exception:
             ctk.CTkLabel(self.image_frame, text="Join Us", font=("Helvetica", 30)).place(relx=0.5, rely=0.5)
 
-        # --- RIGHT SIDE (FORM) ---
         self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")
         self.form_frame.grid(row=0, column=1, sticky="nsew")
 
         self.center_box = ctk.CTkFrame(self.form_frame, fg_color="transparent")
         self.center_box.place(relx=0.5, rely=0.5, anchor="center")
 
-        # Header
         ctk.CTkLabel(self.center_box, text="Create Account", font=("Helvetica", 32, "bold"), text_color="white").pack(pady=(0, 10))
         ctk.CTkLabel(self.center_box, text="Start your productivity journey", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 30))
 
-        # Email
+        
         self.email_entry = ctk.CTkEntry(
             self.center_box, width=300, height=50, 
             placeholder_text="Email Address",
@@ -54,7 +50,7 @@ class SignupApp(ctk.CTk):
         )
         self.email_entry.pack(pady=10)
 
-        # --- Password Row (Entry + Toggle) ---
+        
         pass_frame = ctk.CTkFrame(self.center_box, fg_color="transparent")
         pass_frame.pack(pady=10)
 
@@ -73,7 +69,7 @@ class SignupApp(ctk.CTk):
         )
         self.toggle_btn.pack(side="left")
 
-        # Signup Button
+        
         ctk.CTkButton(
             self.center_box, text="Create Account", width=300, height=50,
             fg_color="#3b82f6", hover_color="#2563eb",
@@ -81,7 +77,7 @@ class SignupApp(ctk.CTk):
             command=self.signup_action
         ).pack(pady=20)
 
-        # Login Link
+        
         footer = ctk.CTkFrame(self.center_box, fg_color="transparent")
         footer.pack(pady=10)
         ctk.CTkLabel(footer, text="Already a member?", text_color="#94a3b8").pack(side="left")
