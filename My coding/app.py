@@ -16,7 +16,8 @@ PACKAGES = {
     "groq": "groq",
     "pygame": "pygame",
     "matplotlib": "matplotlib",
-    "plyer": "plyer"
+    "plyer": "plyer",
+    "pystray": "pystray"
 }
 
 
