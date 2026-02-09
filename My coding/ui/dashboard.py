@@ -18,11 +18,8 @@ class DashboardApp(ctk.CTk):
         self.geometry("1280x720")
         self.title("A Day Companion - Dashboard")
         self.resizable(False, False)
-        self.configure(fg_color="#0f172a") 
-
+        self.configure(fg_color="#0f172a")
         self.user_id = int(user_id)
-        
-        # Track child windows to update them live
         self.insights_window = None
         
         self.quotes = [
@@ -36,20 +33,14 @@ class DashboardApp(ctk.CTk):
         ]
 
         profile = get_profile(self.user_id)
-        
         if profile is None:
             self.show_profile_form()
         else:
             self.setup_main_dashboard(profile)
 
-    # --- REFRESH LOGIC (THE FIX) ---
     def refresh_global(self):
-        """Called by TodoApp whenever DB changes."""
-        # 1. Update Dashboard Stats
         self.update_streak_ui()
         self.update_upcoming_ui()
-        
-        # 2. Update Insights if open
         if self.insights_window and self.insights_window.winfo_exists():
             try:
                 self.insights_window.refresh_views()
@@ -63,12 +54,10 @@ class DashboardApp(ctk.CTk):
         self.streak_label.configure(text=text, text_color=color)
 
     def update_upcoming_ui(self):
-        # Clear old tasks
         for widget in self.upcoming_frame.winfo_children():
             widget.destroy()
         self.load_upcoming_tasks(self.upcoming_frame)
 
-    # --- WINDOW MANAGEMENT ---
     def open_insights(self):
         if self.insights_window is None or not self.insights_window.winfo_exists():
             self.insights_window = InsightsApp(self.user_id)
@@ -76,21 +65,10 @@ class DashboardApp(ctk.CTk):
             self.insights_window.focus()
 
     def open_todo(self):
-        # Pass the global refresh callback!
         TodoApp(self.user_id, on_update=self.refresh_global)
 
-    # --- PROFILE FORM ---
-    def show_profile_form(self):
+    def setup_main_dashboard(self, profile):
         for w in self.winfo_children(): w.destroy()
-        card = ctk.CTkFrame(self, fg_color="#1e293b", corner_radius=20, border_color="#334155", border_width=2)
-        card.place(relx=0.5, rely=0.5, anchor="center")
-        ctk.CTkLabel(card, text="Welcome to Your Companion", font=("Helvetica", 24, "bold"), text_color="white").pack(pady=(30, 10), padx=50)
-        ctk.CTkLabel(card, text="Let's personalize your experience.", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 20))
-        self.name_entry = self.create_input(card, "Full Name (e.g. Devansh)")
-        self.class_entry = self.create_input(card, "Class/Grade (e.g. B.Tech 2nd Year)")
-        self.hobbies_entry = self.create_input(card, "Hobbies (e.g. Coding, Guitar)")
-        self.goals_entry = self.create_input(card, "Top Goals (e.g. 9 CGPA, Learn AI)")
-        ctk.CTkButton(card, text="Save Profile", width=200, height=45, font=("Helvetica", 15, "bold"), fg_color="#3b82f6", hover_color="#2563eb", command=self.save_profile_data).pack(pady=30)
 
     def create_input(self, parent, placeholder):
         entry = ctk.CTkEntry(parent, width=350, height=45, placeholder_text=placeholder, font=("Helvetica", 14))
@@ -108,7 +86,6 @@ class DashboardApp(ctk.CTk):
         else:
             messagebox.showerror("Required", "Please enter at least your Name and Class.")
 
-    # --- MAIN DASHBOARD ---
     def setup_main_dashboard(self, profile):
         for w in self.winfo_children(): w.destroy()
         
@@ -120,38 +97,26 @@ class DashboardApp(ctk.CTk):
         self.grid_columnconfigure(0, weight=35)
         self.grid_columnconfigure(1, weight=65)
         self.grid_rowconfigure(0, weight=1)
-
-        # === LEFT FRAME ===
         self.left_frame = ctk.CTkFrame(self, fg_color="transparent")
         self.left_frame.grid(row=0, column=0, sticky="nsew", padx=40, pady=40)
         
         ctk.CTkLabel(self.left_frame, text=f"Hello,\n{self.user_name}", font=("Helvetica", name_font_size, "bold"), text_color="white", justify="left", anchor="w", wraplength=400).pack(fill="x", pady=(20, 10))
         ctk.CTkFrame(self.left_frame, height=2, fg_color="#334155").pack(fill="x", pady=20)
-
         self.time_label = ctk.CTkLabel(self.left_frame, text="00:00", font=("Helvetica", 100, "bold"), text_color="#38bdf8")
         self.time_label.pack(anchor="w")
 
         self.date_label = ctk.CTkLabel(self.left_frame, text="Monday, 1st Jan", font=("Purisa", 24, "italic"), text_color="#94a3b8")
         self.date_label.pack(anchor="w", pady=(0, 30))
-
-        # 🔥 STREAK (Saved to self for updating)
         self.streak_label = ctk.CTkLabel(self.left_frame, text="", font=("Helvetica", 22, "bold"), anchor="w")
         self.streak_label.pack(fill="x", pady=(0, 20))
         self.update_streak_ui()
-
-        # 📋 UPCOMING TASKS
         ctk.CTkLabel(self.left_frame, text="Up Next:", font=("Helvetica", 16, "bold"), text_color="#cbd5e1", anchor="w").pack(fill="x", pady=(0, 5))
-        
-        # Frame saved to self for updating
         self.upcoming_frame = ctk.CTkFrame(self.left_frame, fg_color="#1e293b", corner_radius=15)
         self.upcoming_frame.pack(fill="x", pady=(0, 20))
         self.update_upcoming_ui()
 
         random_quote = random.choice(self.quotes)
         ctk.CTkLabel(self.left_frame, text=random_quote, font=("Helvetica", 16, "italic"), text_color="#64748b", justify="left", wraplength=350, anchor="w").pack(side="bottom", fill="x", pady=20)
-
-
-        # === RIGHT FRAME ===
         self.right_frame = ctk.CTkFrame(self, fg_color="#1e293b", corner_radius=30)
         self.right_frame.grid(row=0, column=1, sticky="nsew", padx=20, pady=20)
 
@@ -159,8 +124,7 @@ class DashboardApp(ctk.CTk):
         self.right_frame.grid_columnconfigure(1, weight=1)
         self.right_frame.grid_rowconfigure(0, weight=1)
         self.right_frame.grid_rowconfigure(1, weight=1)
-        self.right_frame.grid_rowconfigure(2, weight=1) 
-
+        self.right_frame.grid_rowconfigure(2, weight=1)
         self.load_assets()
 
         self.create_big_button(0, 0, self.ai_img, "AI Companion", lambda: AIChat(self.user_id))

@@ -20,13 +20,11 @@ class InsightsApp(ctk.CTkToplevel):
         self.db_path = "todo.db"
         self.ensure_db_schema()
 
-        # Layout
         self.grid_columnconfigure(0, weight=1)
         self.grid_rowconfigure(0, weight=0) # Header
         self.grid_rowconfigure(1, weight=1) # Tabs
         self.grid_rowconfigure(2, weight=0) # Dev Toggle
 
-        # 1. Header
         self.header = ctk.CTkFrame(self, height=60, corner_radius=0, fg_color="#1e293b")
         self.header.grid(row=0, column=0, sticky="ew")
         
@@ -37,7 +35,6 @@ class InsightsApp(ctk.CTkToplevel):
             text_color="white"
         ).pack(pady=15)
 
-        # 2. Tabs (Daily, Weekly, Monthly)
         self.tabs = ctk.CTkTabview(self, fg_color="#0f172a", segmented_button_selected_color="#3b82f6")
         self.tabs.grid(row=1, column=0, sticky="nsew", padx=20, pady=10)
         
@@ -45,17 +42,14 @@ class InsightsApp(ctk.CTkToplevel):
         self.tabs.add("Weekly")
         self.tabs.add("Monthly")
 
-        # 3. Build Views
         self.build_daily_tab()
         self.build_weekly_tab()
         self.build_monthly_tab()
 
-        # 4. Dev Mode Toggle (Bottom Bar)
         self.dev_frame = ctk.CTkFrame(self, height=50, corner_radius=0, fg_color="#020617")
         self.dev_frame.grid(row=2, column=0, sticky="ew")
 
         self.dev_var = ctk.BooleanVar(value=False)
-        # FIX: Changed 'on_color' to 'progress_color'
         self.dev_switch = ctk.CTkSwitch(
             self.dev_frame, 
             text="Developer Mode", 
@@ -65,10 +59,8 @@ class InsightsApp(ctk.CTkToplevel):
         )
         self.dev_switch.pack(side="left", padx=20, pady=10)
 
-        # Hidden Dev Tools (Initially hidden)
         self.dev_tools = ctk.CTkFrame(self.dev_frame, fg_color="transparent")
         
-        # Tool 1: Bulk Inject
         ctk.CTkButton(
             self.dev_tools, 
             text="Inject Random History", 
@@ -78,7 +70,6 @@ class InsightsApp(ctk.CTkToplevel):
             command=self.inject_fake_data
         ).pack(side="left", padx=10)
         
-        # Tool 2: Specific Time Travel
         ctk.CTkLabel(self.dev_tools, text="|  Add Task for:", text_color="gray").pack(side="left", padx=5)
         
         self.days_ago_entry = ctk.CTkEntry(self.dev_tools, width=50, placeholder_text="5")
@@ -100,7 +91,6 @@ class InsightsApp(ctk.CTkToplevel):
         else:
             self.dev_tools.pack_forget()
 
-    # --- DATABASE INTELLIGENCE ---
     def ensure_db_schema(self):
         """Auto-heals the database to support dates"""
         conn = sqlite3.connect(self.db_path)
@@ -163,7 +153,6 @@ class InsightsApp(ctk.CTkToplevel):
         self.build_weekly_tab()
         self.build_monthly_tab()
 
-    # --- TAB 1: DAILY (Pie Chart) ---
     def build_daily_tab(self):
         tab = self.tabs.tab("Daily")
         for w in tab.winfo_children(): w.destroy()
@@ -171,7 +160,6 @@ class InsightsApp(ctk.CTkToplevel):
         today = datetime.date.today().isoformat()
         total, done = self.get_stats_for_range(today, today)
         
-        # Stats Cards
         frame = ctk.CTkFrame(tab, fg_color="transparent")
         frame.pack(fill="x", pady=10)
         
@@ -180,7 +168,6 @@ class InsightsApp(ctk.CTkToplevel):
 
         self.embed_chart(tab, "pie", [done, total-done], ["Done", "Pending"], ["#22c55e", "#ef4444"])
 
-    # --- TAB 2: WEEKLY (Bar Chart) ---
     def build_weekly_tab(self):
         tab = self.tabs.tab("Weekly")
         for w in tab.winfo_children(): w.destroy()
@@ -199,11 +186,10 @@ class InsightsApp(ctk.CTkToplevel):
             current += timedelta(days=1)
             
         total_week = sum(counts)
-        ctk.CTkLabel(tab, text=f"Total Completed This Week: {total_week}", font=("Arial", 18, "bold")).pack(pady=10)
+        ctk.CTkLabel(tab, text=f"Total Tasks Completed This Week: {total_week}", font=("Arial", 18, "bold")).pack(pady=10)
         
         self.embed_chart(tab, "bar", counts, days, "#3b82f6")
 
-    # --- TAB 3: MONTHLY (Line Chart) ---
     def build_monthly_tab(self):
         tab = self.tabs.tab("Monthly")
         for w in tab.winfo_children(): w.destroy()
@@ -222,16 +208,14 @@ class InsightsApp(ctk.CTkToplevel):
             current += timedelta(days=1)
 
         total_month = sum(counts)
-        ctk.CTkLabel(tab, text=f"Total Completed This Month: {total_month}", font=("Arial", 18, "bold")).pack(pady=10)
+        ctk.CTkLabel(tab, text=f"Total Tasks Completed This Month: {total_month}", font=("Arial", 18, "bold")).pack(pady=10)
         
         self.embed_chart(tab, "line", counts, dates, "#8b5cf6")
 
-    # --- HELPERS ---
     def get_stats_for_range(self, start_str, end_str):
         conn = sqlite3.connect(self.db_path)
         cur = conn.cursor()
         
-        # Use date(date) to ensure we are comparing just the date part if format is mixed
         cur.execute(
             "SELECT count(*) FROM todos WHERE user_id=? AND date(date) BETWEEN date(?) AND date(?)", 
             (self.user_id, start_str, end_str)
@@ -257,7 +241,6 @@ class InsightsApp(ctk.CTkToplevel):
         ax = fig.add_subplot(111)
         ax.set_facecolor("#0f172a")
         
-        # Style
         ax.spines['bottom'].set_color('white')
         ax.spines['left'].set_color('white')
         ax.tick_params(axis='x', colors='white')

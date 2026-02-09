@@ -10,7 +10,7 @@ class TodoApp(ctk.CTkToplevel):
     def __init__(self, user_id, on_update=None):
         super().__init__()
         self.user_id = user_id
-        self.on_update = on_update # Store the callback
+        self.on_update = on_update
         
         self.geometry("600x800")
         self.title("My Tasks & Reminders")
@@ -25,7 +25,6 @@ class TodoApp(ctk.CTkToplevel):
         self.check_thread = threading.Thread(target=self.notification_loop, daemon=True)
         self.check_thread.start()
 
-        # Header
         header = ctk.CTkFrame(self, height=80, corner_radius=0, fg_color="#1e293b")
         header.pack(fill="x")
         
@@ -35,14 +34,12 @@ class TodoApp(ctk.CTkToplevel):
         ctk.CTkLabel(title_frame, text="Tasks", font=("Helvetica", 24, "bold"), text_color="white").pack(side="left")
         ctk.CTkLabel(title_frame, text=" & Reminders", font=("Helvetica", 24), text_color="#94a3b8").pack(side="left")
 
-        # Clear All Button
         ctk.CTkButton(
             title_frame, text="Clear All", width=80, height=30, 
             fg_color="#ef4444", hover_color="#b91c1c",
             font=("Arial", 12, "bold"), command=self.clear_all_tasks
         ).pack(side="right")
 
-        # Input Area
         input_container = ctk.CTkFrame(self, fg_color="transparent")
         input_container.pack(pady=20, padx=20, fill="x")
 
@@ -55,11 +52,10 @@ class TodoApp(ctk.CTkToplevel):
         self.time_entry = ctk.CTkEntry(row2, placeholder_text="Time (HH:MM)", width=150, height=50, font=("Helvetica", 14), border_width=0, fg_color="#334155", text_color="white")
         self.time_entry.pack(side="left", padx=(0, 10))
 
-        ctk.CTkLabel(row2, text="(Optional 24h format)", text_color="gray").pack(side="left")
+        ctk.CTkLabel(row2, text="(Please use 24h format)", text_color="gray").pack(side="left")
 
         ctk.CTkButton(row2, text="+ Add Task", width=120, height=50, font=("Helvetica", 15, "bold"), fg_color="#3b82f6", hover_color="#2563eb", command=self.add_task).pack(side="right")
 
-        # List
         self.scroll_frame = ctk.CTkScrollableFrame(self, fg_color="transparent", scrollbar_button_color="#334155")
         self.scroll_frame.pack(fill="both", expand=True, padx=20, pady=(0, 20))
 
