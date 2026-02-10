@@ -56,7 +56,7 @@ def installer(pkgs):
                 [
                     sys.executable,
                     "-m",
-                    "pip",
+                    "pip3",
                     "install",
                     "--user",
                     "--break-system-packages",
