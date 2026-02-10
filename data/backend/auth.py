@@ -8,6 +8,14 @@ def hash_password(password):
 def check_password(stored_hash, user_input):
     return bcrypt.checkpw(user_input.encode('utf-8'), stored_hash)
 
+def email_exists(email):
+    conn = sqlite3.connect(DB_NAME)
+    cur = conn.cursor()
+    cur.execute("SELECT 1 FROM users WHERE email=?", (email,))
+    result = cur.fetchone()
+    conn.close()
+    return result is not None
+
 def authenticate_user(email, password):
     conn = sqlite3.connect(DB_NAME)
     cur = conn.cursor()
