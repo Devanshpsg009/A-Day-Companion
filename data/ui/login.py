@@ -6,7 +6,7 @@ import random
 import smtplib
 import ssl
 from email.message import EmailMessage
-from backend.auth import authenticate_user, update_password
+from backend.auth import authenticate_user, update_password, email_exists
 import re
 
 ctk.set_appearance_mode("dark")
@@ -115,6 +115,11 @@ class LoginApp(ctk.CTk):
         if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
             messagebox.showerror("Error", "Invalid Email Format")
             return
+        
+        if not email_exists(email):
+            messagebox.showerror("Error", "This email is not registered.\nPlease Sign Up first.")
+            return
+
         otp = self.send_otp(email)
         if otp:
             self.reset_email = email
