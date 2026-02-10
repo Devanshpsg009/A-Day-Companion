@@ -1,6 +1,7 @@
 import sys
 import subprocess
 import importlib.util
+import platform
 
 try:
     from ctypes import windll
@@ -20,14 +21,12 @@ PACKAGES = {
     "pystray": "pystray"
 }
 
-
 def missing_packages():
     missing = []
     for pip_name, import_name in PACKAGES.items():
         if importlib.util.find_spec(import_name) is None:
             missing.append(pip_name)
     return missing
-
 
 def installer(pkgs):
     import tkinter as tk
@@ -51,25 +50,19 @@ def installer(pkgs):
     for i, pkg in enumerate(pkgs, 1):
         status.config(text=f"Installing {pkg}...")
         root.update()
+        
+        cmd = [sys.executable, "-m", "pip", "install", "--user", "--break-system-packages", pkg]
+        
         try:
             subprocess.check_call(
-                [
-                    sys.executable,
-                    "-m",
-                    "pip3",
-                    "install",
-                    "--user",
-                    "--break-system-packages",
-                    pkg
-                ],
+                cmd,
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
         except subprocess.CalledProcessError:
             messagebox.showerror(
                 "Setup Failed",
-                f"Could not install {pkg}.\n\n"
-                "Please install dependencies manually."
+                f"Could not install {pkg}.\n\nPlease check your internet connection."
             )
             root.destroy()
             sys.exit(1)
@@ -82,7 +75,6 @@ def installer(pkgs):
     root.update()
     root.after(1500, root.destroy)
     root.mainloop()
-
 
 def run():
     pkgs = missing_packages()
@@ -99,7 +91,6 @@ def run():
         LoginApp().mainloop()
     else:
         App().mainloop()
-
 
 if __name__ == "__main__":
     run()
