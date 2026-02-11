@@ -67,7 +67,7 @@ def installer(pkgs):
         except subprocess.CalledProcessError:
             messagebox.showerror(
                 "Setup Failed",
-                f"Could not install {pkg}.\n\nPlease check your internet connection."
+                f"Could not install {pkg}.\n\nPlease check your internet connection or python version."
             )
             root.destroy()
             sys.exit(1)
