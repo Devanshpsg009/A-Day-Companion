@@ -1,0 +1,78 @@
+#!/usr/bin/env bash
+
+# --- CONFIGURATION ---
+REPO_URL="https://github.com/Devanshpsg009/A-Day-Companion"
+TARGET_DIR="$HOME/A-Day-Companion"
+APP_SCRIPT="data/app.py"
+MIN_PYTHON_VERSION="3.10"
+
+# --- HELPER FUNCTIONS ---
+notify_user() {
+    osascript -e "display notification \"$1\" with title \"A Day Companion\""
+}
+
+alert_user() {
+    osascript -e "display dialog \"$1\" buttons {\"OK\"} default button \"OK\" with icon caution with title \"Setup Required\""
+}
+
+# --- STEP 1: CHECK GIT ---
+if ! command -v git &> /dev/null; then
+    alert_user "Git is not installed. Please install Xcode Command Line Tools and reopen the app."
+    xcode-select --install
+    exit 1
+fi
+
+# --- STEP 2: CLONE OR UPDATE REPO ---
+if [[ -d "$TARGET_DIR/.git" ]]; then
+    notify_user "Updating A-Day-Companion repository…"
+    git -C "$TARGET_DIR" pull
+else
+    notify_user "Cloning A-Day-Companion repository…"
+    git clone "$REPO_URL" "$TARGET_DIR"
+fi
+
+# --- STEP 3: FIND LATEST PYTHON ---
+PYTHON_CMD=""
+
+# Look for python installed via python.org in /Library/Frameworks
+if [[ -d "/Library/Frameworks/Python.framework/Versions" ]]; then
+    LATEST_PYTHON=$(ls -1 /Library/Frameworks/Python.framework/Versions/ | sort -V | tail -n1)
+    PYTHON_CMD="/Library/Frameworks/Python.framework/Versions/$LATEST_PYTHON/bin/python3"
+fi
+
+# Fallback to system python3 if python.org version not found
+if [[ -z "$PYTHON_CMD" || ! -x "$PYTHON_CMD" ]]; then
+    if command -v python3 &> /dev/null; then
+        PYTHON_CMD=$(command -v python3)
+    fi
+fi
+
+# If no python3 found at all
+if [[ -z "$PYTHON_CMD" ]]; then
+    alert_user "Python 3 (>= $MIN_PYTHON_VERSION) not found. Please install it from python.org."
+    open "https://www.python.org/downloads/"
+    exit 1
+fi
+
+# Check version
+PYTHON_VERSION=$("$PYTHON_CMD" -c 'import sys; print(".".join(map(str, sys.version_info[:3])))')
+
+version_lt() {
+    [ "$(printf '%s\n' "$@" | sort -V | head -n1)" != "$2" ]
+}
+
+if version_lt "$PYTHON_VERSION" "$MIN_PYTHON_VERSION"; then
+    alert_user "Python version ($PYTHON_VERSION) is older than required ($MIN_PYTHON_VERSION). Please update Python."
+    open "https://www.python.org/downloads/"
+    exit 1
+fi
+
+notify_user "Using Python $PYTHON_VERSION at $PYTHON_CMD"
+
+# --- STEP 4: RUN APP ---
+if [[ -f "$TARGET_DIR/$APP_SCRIPT" ]]; then
+    "$PYTHON_CMD" "$TARGET_DIR/$APP_SCRIPT"
+else
+    alert_user "App script not found at $TARGET_DIR/$APP_SCRIPT"
+    exit 1
+fi
