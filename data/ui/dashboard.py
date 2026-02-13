@@ -258,7 +258,7 @@ class DashboardApp(ctk.CTk):
         for w in self.winfo_children(): w.destroy()
         card = ctk.CTkFrame(self, fg_color="#1e293b", corner_radius=20, border_color="#334155", border_width=2)
         card.place(relx=0.5, rely=0.5, anchor="center")
-        ctk.CTkLabel(card, text="Welcome to Your Companion", font=("Helvetica", 24, "bold"), text_color="white").pack(pady=(30, 10), padx=50)
+        ctk.CTkLabel(card, text="Welcome to A Day Companion", font=("Helvetica", 24, "bold"), text_color="white").pack(pady=(30, 10), padx=50)
         ctk.CTkLabel(card, text="Let's personalize your experience.", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 20))
         self.name_entry = self.create_input(card, "Full Name (e.g. Devansh)")
         self.class_entry = self.create_input(card, "Class/Grade (e.g. B.Tech 2nd Year)")

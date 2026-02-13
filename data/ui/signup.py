@@ -118,6 +118,8 @@ class SignupApp(ctk.CTk):
             res = messagebox.askyesno("Success", "Account created! Login now?")
             if res:
                 self.login_action()
+            else:
+                self.destroy()
         else:
             messagebox.showerror("Error", "User already exists")
 

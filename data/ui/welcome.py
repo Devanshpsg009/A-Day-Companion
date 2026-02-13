@@ -56,7 +56,7 @@ class App(ctk.CTk):
         self.geometry("1200x600")
         self.title("A Day Companion")
         self.configure(fg_color=Theme.MAIN_BG)
-        self.resizable(False, False)
+        self.resizable(True, True)
 
         self.current_page = 0
 
@@ -78,7 +78,7 @@ class App(ctk.CTk):
 
         ctk.CTkLabel(
             self.sidebar,
-            text="Boost your productivity\nwithout burning out",
+            text="Boost your productivity\n",
             font=Theme.FONT_SIDE,
             text_color="white",
             justify="center"
