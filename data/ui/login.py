@@ -2,12 +2,10 @@ import customtkinter as ctk
 from tkinter import messagebox
 from PIL import Image
 import os
-import random
-import smtplib
-import ssl
-from email.message import EmailMessage
-from backend.auth import authenticate_user, update_password, email_exists
-import re
+from dotenv import load_dotenv
+from backend.auth import authenticate_user, update_password, email_exists, verify_totp
+
+load_dotenv()
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -19,10 +17,11 @@ class LoginApp(ctk.CTk):
         self.title("A Day Companion - Login")
         self.resizable(False, False)
         self.reset_email = None
-        self.generated_otp = None
+
         self.grid_columnconfigure(0, weight=1)
         self.grid_columnconfigure(1, weight=1)
         self.grid_rowconfigure(0, weight=1)
+
         self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
         self.image_frame.grid(row=0, column=0, sticky="nsew")
         try:
@@ -33,6 +32,7 @@ class LoginApp(ctk.CTk):
             img_label.place(x=0, y=0, relwidth=1, relheight=1)
         except Exception:
             ctk.CTkLabel(self.image_frame, text="A Day Companion", font=("Helvetica", 30, "bold")).place(relx=0.5, rely=0.5, anchor="center")
+        
         self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")
         self.form_frame.grid(row=0, column=1, sticky="nsew")
         self.center_box = ctk.CTkFrame(self.form_frame, fg_color="transparent")
@@ -66,20 +66,11 @@ class LoginApp(ctk.CTk):
     def show_forgot_email_form(self):
         self.clear_center_box()
         ctk.CTkLabel(self.center_box, text="Reset Password", font=("Helvetica", 28, "bold"), text_color="white").pack(pady=(0, 10))
-        ctk.CTkLabel(self.center_box, text="Enter your email to receive an OTP", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 30))
+        ctk.CTkLabel(self.center_box, text="Enter your email to verify", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 30))
         self.reset_email_entry = ctk.CTkEntry(self.center_box, width=300, height=50, placeholder_text="Enter your email", fg_color="#1e293b", border_color="#334155", text_color="white")
         self.reset_email_entry.pack(pady=10)
-        ctk.CTkButton(self.center_box, text="Send OTP", width=300, height=50, fg_color="#3b82f6", hover_color="#2563eb", font=("Helvetica", 15, "bold"), command=self.action_send_otp).pack(pady=20)
+        ctk.CTkButton(self.center_box, text="Verify Authenticator", width=300, height=50, fg_color="#3b82f6", hover_color="#2563eb", font=("Helvetica", 15, "bold"), command=self.action_verify_user).pack(pady=20)
         ctk.CTkButton(self.center_box, text="Back to Login", fg_color="transparent", text_color="#94a3b8", command=self.show_login_form).pack()
-
-    def show_otp_form(self):
-        self.clear_center_box()
-        ctk.CTkLabel(self.center_box, text="Verify OTP", font=("Helvetica", 28, "bold"), text_color="white").pack(pady=(0, 10))
-        ctk.CTkLabel(self.center_box, text=f"OTP sent to {self.reset_email}", font=("Helvetica", 12), text_color="#94a3b8").pack(pady=(0, 30))
-        self.otp_entry = ctk.CTkEntry(self.center_box, width=300, height=50, placeholder_text="Enter 6-digit OTP", fg_color="#1e293b", border_color="#334155", text_color="white")
-        self.otp_entry.pack(pady=10)
-        ctk.CTkButton(self.center_box, text="Verify & Proceed", width=300, height=50, fg_color="#22c55e", hover_color="#16a34a", font=("Helvetica", 15, "bold"), command=self.action_verify_otp).pack(pady=20)
-        ctk.CTkButton(self.center_box, text="Cancel", fg_color="transparent", text_color="#94a3b8", command=self.show_login_form).pack()
 
     def show_new_password_form(self):
         self.clear_center_box()
@@ -89,52 +80,19 @@ class LoginApp(ctk.CTk):
         self.new_pass_entry.pack(pady=10)
         ctk.CTkButton(self.center_box, text="Update Password", width=300, height=50, fg_color="#3b82f6", hover_color="#2563eb", font=("Helvetica", 15, "bold"), command=self.action_update_password).pack(pady=20)
 
-    def send_otp(self, email_address):
-        otp = random.randint(100000, 999999)
-        my_email = "adaycompanion@gmail.com"
-        my_password = "ykpt ffkf fmcr lwmg"
-        subject = "Your Login OTP"
-        body = f"Your One-Time Password (OTP) is: {otp}\nDo not share this."
-        msg = EmailMessage()
-        msg["From"] = my_email
-        msg["To"] = email_address
-        msg["Subject"] = subject
-        msg.set_content(body)
-        try:
-            context = ssl.create_default_context()
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465, context=context) as smtp:
-                smtp.login(my_email, my_password)
-                smtp.sendmail(my_email, email_address, msg.as_string())
-            return otp
-        except Exception as e:
-            print(f"Email Error: {e}")
-            return None
-
-    def action_send_otp(self):
+    def action_verify_user(self):
         email = self.reset_email_entry.get().strip()
-        if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-            messagebox.showerror("Error", "Invalid Email Format")
-            return
-        
         if not email_exists(email):
-            messagebox.showerror("Error", "This email is not registered.\nPlease Sign Up first.")
+            messagebox.showerror("Error", "This email is not registered.")
             return
 
-        otp = self.send_otp(email)
-        if otp:
-            self.reset_email = email
-            self.generated_otp = otp
-            messagebox.showinfo("OTP Sent", f"An OTP has been sent to {email}")
-            self.show_otp_form()
-        else:
-            messagebox.showerror("Error", "Failed to send email.")
-
-    def action_verify_otp(self):
-        user_otp = self.otp_entry.get().strip()
-        if user_otp == str(self.generated_otp):
-            self.show_new_password_form()
-        else:
-            messagebox.showerror("Error", "Invalid OTP.")
+        code = ctk.CTkInputDialog(text="Enter 6-digit code from Authenticator App:", title="Security Check").get_input()
+        if code:
+            if verify_totp(email, code):
+                self.reset_email = email
+                self.show_new_password_form()
+            else:
+                messagebox.showerror("Error", "Invalid Code.")
 
     def action_update_password(self):
         new_pass = self.new_pass_entry.get().strip()

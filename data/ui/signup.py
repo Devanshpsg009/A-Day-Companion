@@ -1,7 +1,10 @@
 import customtkinter as ctk
-from tkinter import messagebox
+from tkinter import messagebox, simpledialog
+import webbrowser
 from PIL import Image
 import os
+import qrcode
+import pyotp
 from backend.auth import create_user
 from backend.database import create_users_table
 import re
@@ -42,7 +45,6 @@ class SignupApp(ctk.CTk):
         ctk.CTkLabel(self.center_box, text="Create Account", font=("Helvetica", 32, "bold"), text_color="white").pack(pady=(0, 10))
         ctk.CTkLabel(self.center_box, text="Start your productivity journey", font=("Helvetica", 14), text_color="#94a3b8").pack(pady=(0, 30))
 
-        
         self.email_entry = ctk.CTkEntry(
             self.center_box, width=300, height=50, 
             placeholder_text="Email Address",
@@ -50,7 +52,6 @@ class SignupApp(ctk.CTk):
         )
         self.email_entry.pack(pady=10)
 
-        
         pass_frame = ctk.CTkFrame(self.center_box, fg_color="transparent")
         pass_frame.pack(pady=10)
 
@@ -69,7 +70,6 @@ class SignupApp(ctk.CTk):
         )
         self.toggle_btn.pack(side="left")
 
-        
         ctk.CTkButton(
             self.center_box, text="Create Account", width=300, height=50,
             fg_color="#3b82f6", hover_color="#2563eb",
@@ -77,7 +77,6 @@ class SignupApp(ctk.CTk):
             command=self.signup_action
         ).pack(pady=20)
 
-        
         footer = ctk.CTkFrame(self.center_box, fg_color="transparent")
         footer.pack(pady=10)
         ctk.CTkLabel(footer, text="Already a member?", text_color="#94a3b8").pack(side="left")
@@ -113,15 +112,60 @@ class SignupApp(ctk.CTk):
             return
 
         create_users_table()
+        secret_key = create_user(email, password)
 
-        if create_user(email, password):
-            res = messagebox.askyesno("Success", "Account created! Login now?")
-            if res:
-                self.login_action()
-            else:
-                self.destroy()
+        if secret_key:
+            self.ask_for_api_key()
+            self.show_qr_popup(email, secret_key)
         else:
             messagebox.showerror("Error", "User already exists")
+
+    def show_qr_popup(self, email, secret):
+        uri = pyotp.totp.TOTP(secret).provisioning_uri(name=email, issuer_name="A Day Companion")
+        qr = qrcode.make(uri)
+        qr_path = "temp_qr.png"
+        qr.save(qr_path)
+
+        top = ctk.CTkToplevel(self)
+        top.geometry("400x550")
+        top.title("Setup 2FA Recovery")
+        top.attributes("-topmost", True)
+        top.resizable(False, False)
+
+        ctk.CTkLabel(top, text="Scan with Google Authenticator", font=("Helvetica", 18, "bold")).pack(pady=20)
+        
+        try:
+            pil_img = Image.open(qr_path)
+            my_image = ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=(250, 250))
+            ctk.CTkLabel(top, image=my_image, text="").pack(pady=10)
+        except:
+            ctk.CTkLabel(top, text="[QR Code Error]").pack()
+
+        ctk.CTkLabel(top, text="This is your Recovery Key.\nIf you forget your password,\nyou will need the code from this app.", text_color="gray").pack(pady=10)
+
+        def close_and_login():
+            if os.path.exists(qr_path):
+                os.remove(qr_path)
+            top.destroy()
+            self.login_action()
+
+        ctk.CTkButton(top, text="I Scanned It -> Login", command=close_and_login, fg_color="#22c55e").pack(pady=20)
+
+    def ask_for_api_key(self):
+        env_path = ".env"
+        if os.path.exists(env_path):
+            with open(env_path, "r") as f:
+                if "GROQ_API_KEY" in f.read():
+                    return
+
+        msg = "To enable AI features, you need a free Groq API Key.\n\nClick OK to open the website, then copy-paste the key here."
+        if messagebox.askokcancel("Setup AI", msg):
+            webbrowser.open("https://console.groq.com/keys")
+            api_key = ctk.CTkInputDialog(text="Paste your Groq API Key here:", title="API Setup").get_input()
+            if api_key and api_key.strip():
+                with open(env_path, "a") as f:
+                    f.write(f"\nGROQ_API_KEY={api_key.strip()}\n")
+                messagebox.showinfo("Setup Complete", "AI features enabled successfully!")
 
     def login_action(self):
         from ui.login import LoginApp

@@ -8,6 +8,8 @@ import threading
 import pystray
 import sys
 import queue
+import webbrowser
+from dotenv import load_dotenv
 from tkinter import messagebox
 from backend.profile_db import get_profile, save_profile
 from ui.ai_chat import AIChat
@@ -16,6 +18,8 @@ from ui.calc import CalculatorApp
 from ui.insights_ui import InsightsApp
 from ui.todo import TodoApp
 from ui.journal import JournalApp
+
+load_dotenv()
 
 class DashboardApp(ctk.CTk):
     def __init__(self, user_id):
@@ -55,7 +59,6 @@ class DashboardApp(ctk.CTk):
         else:
             self.setup_main_dashboard(profile)
 
-    # --- TRAY LOGIC ---
     def start_tray(self):
         if self.tray_running:
             return
@@ -149,7 +152,7 @@ class DashboardApp(ctk.CTk):
 
         self.load_assets()
 
-        self.create_btn(right, 0, 0, self.ai_img, "AI Companion", lambda: AIChat(self.user_id))
+        self.create_btn(right, 0, 0, self.ai_img, "AI Companion", self.open_ai_chat)
         self.create_btn(right, 0, 1, self.calc_img, "Calculator", CalculatorApp)
         self.create_btn(right, 1, 0, self.clock_img, "Focus Timer", FocusTimerApp)
         self.create_btn(right, 1, 1, self.insights_img, "Insights", self.open_insights)
@@ -157,6 +160,28 @@ class DashboardApp(ctk.CTk):
         self.create_btn(right, 2, 1, self.journal_img, "Journal", lambda: JournalApp(self.user_id))
         
         self.update_clock()
+
+    def open_ai_chat(self):
+        key = os.getenv("GROQ_API_KEY")
+
+        if key and key.strip():
+            AIChat(self.user_id)
+        else:
+            msg = "AI features require a Groq API Key.\n\nClick OK to get a free key, then paste it here."
+            if messagebox.askokcancel("Setup AI", msg):
+                webbrowser.open("[https://console.groq.com/keys](https://console.groq.com/keys)")
+                
+                dialog = ctk.CTkInputDialog(text="Paste Groq API Key:", title="Setup")
+                new_key = dialog.get_input()
+
+                if new_key and new_key.strip():
+                    with open(".env", "a") as f:
+                        f.write(f"\nGROQ_API_KEY={new_key.strip()}\n")
+                    
+                    os.environ["GROQ_API_KEY"] = new_key.strip()
+                    AIChat(self.user_id)
+                else:
+                    messagebox.showwarning("Cancelled", "AI Chat cannot open without a key.")
 
     def refresh_global(self):
         self.update_streak_ui()
