@@ -1,13 +1,6 @@
 import sys
-import os
 import subprocess
 import importlib.util
-import platform
-
-script_dir = os.path.dirname(os.path.abspath(__file__))
-if script_dir not in sys.path:
-    sys.path.insert(0, script_dir)
-os.chdir(script_dir)
 
 try:
     from ctypes import windll
@@ -24,7 +17,9 @@ PACKAGES = {
     "pygame": "pygame",
     "matplotlib": "matplotlib",
     "plyer": "plyer",
-    "pystray": "pystray"
+    "pystray": "pystray",
+    "pyotp": "pyotp",
+    "qrcode": "qrcode"
 }
 
 def missing_packages():
@@ -56,8 +51,9 @@ def installer(pkgs):
     for i, pkg in enumerate(pkgs, 1):
         status.config(text=f"Installing {pkg}...")
         root.update()
+        
         cmd = [sys.executable, "-m", "pip", "install", "--user", "--break-system-packages", pkg]
-       
+        
         try:
             subprocess.check_call(
                 cmd,
@@ -85,8 +81,9 @@ def run():
     pkgs = missing_packages()
     if pkgs:
         installer(pkgs)
-        subprocess.call([sys.executable, os.path.abspath(__file__)] + sys.argv[1:])
+        subprocess.call([sys.executable] + sys.argv)
         sys.exit()
+
     from backend.database import has_users
     from ui.login import LoginApp
     from ui.welcome import App
