@@ -4,7 +4,6 @@ import json
 from datetime import date
 from dotenv import load_dotenv
 from groq import Groq
-from backend.database import get_connection
 from backend.profile_db import get_profile 
 
 load_dotenv()
@@ -12,6 +11,7 @@ load_dotenv()
 MAX_DAILY_PROMPTS = 30
 KEYWORDS_FILE = "backend/allowed_keywords.txt"
 DB_FILE = "ai_memory.db"
+JOURNAL_DB = "journal.db"
 
 def init_db():
     conn = sqlite3.connect(DB_FILE)
@@ -90,6 +90,36 @@ def get_client():
         return None
     return Groq(api_key=api_key)
 
+def get_latest_journal_context(user_id):
+    """Fetches the latest journal entry to give the AI context on how the user is feeling."""
+    if not os.path.exists(JOURNAL_DB):
+        return None
+        
+    try:
+        conn = sqlite3.connect(JOURNAL_DB)
+        cur = conn.cursor()
+        cur.execute("""
+            SELECT content, mood, score, date 
+            FROM journal 
+            WHERE user_id=? 
+            ORDER BY date DESC LIMIT 1
+        """, (user_id,))
+        row = cur.fetchone()
+        conn.close()
+        
+        if row:
+            content, mood, score, entry_date = row
+            mood_str = f"{mood} ({score}/10)" if mood else "Unknown"
+            return (
+                f"LATEST JOURNAL ENTRY ({entry_date}):\n"
+                f"Mood: {mood_str}\n"
+                f"Content: {content[:500]}"
+            )
+    except Exception as e:
+        print(f"Journal Read Error: {e}")
+        return None
+    return None
+
 def ask_ai(user_id, prompt):
     init_db()
     
@@ -99,16 +129,27 @@ def ask_ai(user_id, prompt):
 
     if daily_count(user_id) >= MAX_DAILY_PROMPTS:
         return "You've reached today's AI limit (30). Try again tomorrow please."
-
     profile = get_profile(user_id)
     if profile:
         name, u_class, hobbies, goals = profile
         context_str = f"User: {name}, Class: {u_class}, Hobbies: {hobbies}, Goals: {goals}"
     else:
         context_str = "User is a student."
+    journal_context = get_latest_journal_context(user_id)
+    
+    journal_instruction = ""
+    if journal_context:
+        journal_instruction = (
+            f"\n\n[IMPORTANT CONTEXT FROM USER'S JOURNAL]\n"
+            f"{journal_context}\n"
+            f"INSTRUCTION: The user might be feeling this way right now. "
+            f"Be empathetic to their mood mentioned above."
+        )
 
     system_prompt = (
-        f"You are a supportive AI productivity companion.\nProfile: {context_str}\n"
+        f"You are a supportive, warm AI productivity companion.\n"
+        f"Profile: {context_str}"
+        f"{journal_instruction}\n\n"
         "Keep answers concise, motivating, and actionable."
     )
 
@@ -136,13 +177,18 @@ def analyze_sentiment(user_id, journal_text):
         return None
 
     init_db()
-    
     prompt = f"""
-    Analyze the following journal entry written by a student.
+    You are a supportive, encouraging friend reading a student's journal.
     
     Journal Entry: "{journal_text}"
     
-    Return ONLY a raw JSON object (no markdown) with keys: mood (string), score (1-10), advice (string).
+    Return ONLY a raw JSON object (no markdown) with keys: 
+    1. mood (string)
+    2. score (1-10)
+    3. advice (string). 
+    
+    IMPORTANT: Write the advice DIRECTLY to the student using "You". 
+    Be highly motivating, warm, and optimistic. Never use the third person.
     """
 
     try:

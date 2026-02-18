@@ -1,5 +1,5 @@
 import customtkinter as ctk
-from tkinter import messagebox, simpledialog
+from tkinter import messagebox
 import webbrowser
 from PIL import Image
 import os
