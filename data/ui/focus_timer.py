@@ -26,37 +26,49 @@ class FocusTimerApp(ctk.CTkToplevel):
         tab = self.tabs.tab("Stopwatch")
         self.sw_seconds = 0
         self.sw_running = False
+        self.sw_after_id = None
         self.sw_label = ctk.CTkLabel(tab, text="00:00:00", font=("Arial", 50, "bold"))
         self.sw_label.pack(pady=40)
         btn_frame = ctk.CTkFrame(tab, fg_color="transparent")
         btn_frame.pack()
-        ctk.CTkButton(btn_frame, text="Start", width=80, command=self.sw_start).pack(side="left", padx=5)
+        self.sw_start_btn = ctk.CTkButton(btn_frame, text="Start", width=80, command=self.sw_start)
+        self.sw_start_btn.pack(side="left", padx=5)
         ctk.CTkButton(btn_frame, text="Pause", width=80, command=self.sw_pause).pack(side="left", padx=5)
         ctk.CTkButton(btn_frame, text="Reset", width=80, fg_color="#C0392B", hover_color="#A93226", command=self.sw_reset).pack(side="left", padx=5)
 
     def sw_start(self):
         if not self.sw_running:
             self.sw_running = True
-            self.update_sw()
+            self.sw_start_btn.configure(text="Resume")
+            self.sw_after_id = self.after(1000, self.update_sw)
 
-    def sw_pause(self): self.sw_running = False
+    def sw_pause(self):
+        self.sw_running = False
+        if getattr(self, "sw_after_id", None):
+            self.after_cancel(self.sw_after_id)
+            self.sw_after_id = None
 
     def sw_reset(self):
         self.sw_running = False
+        if getattr(self, "sw_after_id", None):
+            self.after_cancel(self.sw_after_id)
+            self.sw_after_id = None
         self.sw_seconds = 0
         self.sw_label.configure(text="00:00:00")
+        self.sw_start_btn.configure(text="Start")
 
     def update_sw(self):
         if not self.winfo_exists(): return
         if self.sw_running:
             self.sw_seconds += 1
             self.sw_label.configure(text=f"{self.sw_seconds // 3600:02}:{(self.sw_seconds % 3600) // 60:02}:{self.sw_seconds % 60:02}")
-            self.after(1000, self.update_sw)
+            self.sw_after_id = self.after(1000, self.update_sw)
     
     def build_timer(self):
         tab = self.tabs.tab("Timer")
         self.timer_running = False
         self.timer_total = 0
+        self.timer_after_id = None
         input_frame = ctk.CTkFrame(tab, fg_color="transparent")
         input_frame.pack(pady=20)
         self.t_hr = ctk.CTkEntry(input_frame, width=50, placeholder_text="00", justify="center")
@@ -71,8 +83,9 @@ class FocusTimerApp(ctk.CTkToplevel):
         self.timer_label.pack(pady=20)
         btn_frame = ctk.CTkFrame(tab, fg_color="transparent")
         btn_frame.pack()
-        ctk.CTkButton(btn_frame, text="Start", width=80, command=self.timer_start).pack(side="left", padx=5)
-        ctk.CTkButton(btn_frame, text="Stop", width=80, command=self.timer_pause).pack(side="left", padx=5)
+        self.timer_start_btn = ctk.CTkButton(btn_frame, text="Start", width=80, command=self.timer_start)
+        self.timer_start_btn.pack(side="left", padx=5)
+        ctk.CTkButton(btn_frame, text="Pause", width=80, command=self.timer_pause).pack(side="left", padx=5)
         ctk.CTkButton(btn_frame, text="Reset", width=80, fg_color="#C0392B", hover_color="#A93226", command=self.timer_reset).pack(side="left", padx=5)
 
     def timer_start(self):
@@ -82,27 +95,38 @@ class FocusTimerApp(ctk.CTkToplevel):
                     self.timer_total = int(self.t_hr.get() or 0) * 3600 + int(self.t_min.get() or 0) * 60 + int(self.t_sec.get() or 0)
                 if self.timer_total > 0:
                     self.timer_running = True
-                    self.update_timer()
+                    self.timer_start_btn.configure(text="Resume")
+                    self.timer_after_id = self.after(1000, self.update_timer)
             except ValueError:
                 messagebox.showerror("Error", "Please enter valid numbers")
 
-    def timer_pause(self): self.timer_running = False
+    def timer_pause(self):
+        self.timer_running = False
+        if getattr(self, "timer_after_id", None):
+            self.after_cancel(self.timer_after_id)
+            self.timer_after_id = None
 
     def timer_reset(self):
         self.timer_running = False
+        if getattr(self, "timer_after_id", None):
+            self.after_cancel(self.timer_after_id)
+            self.timer_after_id = None
         self.timer_total = 0
         self.timer_label.configure(text="00:00:00")
+        self.timer_start_btn.configure(text="Start")
 
     def update_timer(self):
         if not self.winfo_exists(): return
         if self.timer_running and self.timer_total > 0:
-            self.timer_label.configure(text=f"{self.timer_total // 3600:02}:{(self.timer_total % 3600) // 60:02}:{self.timer_total % 60:02}")
             self.timer_total -= 1
-            self.after(1000, self.update_timer)
-        elif self.timer_total == 0 and self.timer_running:
-            self.timer_running = False
-            self.trigger_alarm_sound() 
-            
+            self.timer_label.configure(text=f"{self.timer_total // 3600:02}:{(self.timer_total % 3600) // 60:02}:{self.timer_total % 60:02}")
+            if self.timer_total > 0:
+                self.timer_after_id = self.after(1000, self.update_timer)
+            else:
+                self.timer_running = False
+                self.timer_start_btn.configure(text="Start")
+                self.trigger_alarm_sound()
+                
     def build_alarm(self):
         tab = self.tabs.tab("Alarm")
         self.alarm_active = False
