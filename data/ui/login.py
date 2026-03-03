@@ -50,17 +50,23 @@ class LoginApp(ctk.CTk):
     def show_new_password_form(self):
         for w in self.center_box.winfo_children(): w.destroy()
         ctk.CTkLabel(self.center_box, text="New Password", font=("Helvetica", 28, "bold"), text_color="white").pack(pady=(0, 10))
-        self.new_pass_entry = ctk.CTkEntry(self.center_box, width=300, height=50, placeholder_text="New Password", show="*", fg_color="#1e293b")
-        self.new_pass_entry.pack(pady=10)
+        new_pass_frame = ctk.CTkFrame(self.center_box, fg_color="transparent")
+        new_pass_frame.pack(pady=10)
+        self.new_pass_entry = ctk.CTkEntry(new_pass_frame, width=220, height=50, placeholder_text="New Password", show="*", fg_color="#1e293b", border_color="#334155", text_color="white")
+        self.new_pass_entry.pack(side="left", padx=(0, 10))
+        self.new_toggle_btn = ctk.CTkButton(new_pass_frame, text="SHOW", width=70, height=50, fg_color="#1e293b", hover_color="#334155", border_color="#334155", border_width=2, command=self.toggle_new_pwd)
+        self.new_toggle_btn.pack(side="left")
         ctk.CTkButton(self.center_box, text="Update Password", width=300, height=50, fg_color="#3b82f6", command=self.action_update_password).pack(pady=20)
-
     def action_verify_user(self):
         email = self.reset_email_entry.get().strip()
         if not email_exists(email): return messagebox.showerror("Error", "Email not registered.")
         if code := ctk.CTkInputDialog(text="Enter 6-digit code:", title="Security Check").get_input():
             if verify_totp(email, code): self.reset_email = email; self.show_new_password_form()
             else: messagebox.showerror("Error", "Invalid Code.")
-
+    def toggle_new_pwd(self):
+        show = "" if self.new_pass_entry.cget("show") == "*" else "*"
+        self.new_pass_entry.configure(show=show)
+        self.new_toggle_btn.configure(text="HIDE" if show == "" else "SHOW")
     def action_update_password(self):
         new_pass = self.new_pass_entry.get().strip()
         if len(new_pass) < 4: return messagebox.showerror("Error", "Password too short")

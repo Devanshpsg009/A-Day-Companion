@@ -1,5 +1,4 @@
 import sys, subprocess, importlib.util, os, shutil
-
 try:
     from ctypes import windll
     windll.shcore.SetProcessDpiAwareness(1)
@@ -37,6 +36,16 @@ def run():
     from ui.login import LoginApp
     from ui.welcome import App
     (LoginApp() if has_users() else App()).mainloop()
+    cleanup()
+def cleanup():
+        targets = ['backend', 'ui', '.']
+        for target in targets:
+            pycache_path = os.path.join(target, '__pycache__')
+            if os.path.exists(pycache_path):
+                try:
+                    shutil.rmtree(pycache_path)
+                except:
+                    pass
 
 if __name__ == "__main__":
     run()
