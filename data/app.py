@@ -1,10 +1,10 @@
-import sys, subprocess, importlib.util, os, shutil
+import sys, subprocess, importlib.util, os, shutil, zipfile
 try:
     from ctypes import windll
     windll.shcore.SetProcessDpiAwareness(1)
 except: pass
 
-PACKAGES = {"customtkinter": "customtkinter", "Pillow": "PIL", "bcrypt": "bcrypt", "python-dotenv": "dotenv", "groq": "groq", "pygame": "pygame", "matplotlib": "matplotlib", "plyer": "plyer", "pystray": "pystray", "pyotp": "pyotp", "qrcode": "qrcode"}
+PACKAGES = {"customtkinter": "customtkinter", "Pillow": "PIL", "bcrypt": "bcrypt", "python-dotenv": "dotenv", "groq": "groq", "pygame": "pygame", "matplotlib": "matplotlib", "plyer": "plyer", "pystray": "pystray", "pyotp": "pyotp", "qrcode": "qrcode", "chess": "chess"}
 
 def missing_packages():
     return [p for p, i in PACKAGES.items() if importlib.util.find_spec(i) is None]
@@ -36,6 +36,10 @@ def run():
     from ui.login import LoginApp
     from ui.welcome import App
     (LoginApp() if has_users() else App()).mainloop()
+    if os.path.exists("engine") and os.listdir("engine"):
+        os.remove("assets/engine.zip")
+    with zipfile.ZipFile("assets/engine.zip") as zf:
+        zf.extractall("engine")
     cleanup()
 def cleanup():
         targets = ['backend', 'ui', '.']

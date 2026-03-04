@@ -1,5 +1,4 @@
 import shutil
-
 import customtkinter as ctk
 from PIL import Image
 import datetime
@@ -20,6 +19,7 @@ from ui.calc import CalculatorApp
 from ui.insights_ui import InsightsApp
 from ui.todo import TodoApp
 from ui.journal import JournalApp
+from ui.health_reminder import HealthReminderApp
 
 load_dotenv()
 
@@ -97,11 +97,17 @@ class DashboardApp(ctk.CTk):
         for i in range(4): right.grid_rowconfigure(i, weight=1)
         self.load_assets()
         
+        self.health_tracker = HealthReminderApp(self)
+        
         btns = [
-            (0, 0, self.ai_img, "AI Companion", self.open_ai_chat), (0, 1, self.calc_img, "Calculator", CalculatorApp),
-            (1, 0, self.clock_img, "Focus Timer", FocusTimerApp), (1, 1, self.insights_img, "Insights", self.open_insights),
-            (2, 0, self.todo_img, "To-Do List", lambda: TodoApp(self.user_id, self.refresh_global)), (2, 1, self.journal_img, "Journal", lambda: JournalApp(self.user_id)),
-            (3, 0, self.chess_img, "Chess", self.open_chess)
+            (0, 0, self.ai_img, "AI Companion", self.open_ai_chat), 
+            (0, 1, self.calc_img, "Calculator", CalculatorApp),
+            (1, 0, self.clock_img, "Focus Timer", FocusTimerApp), 
+            (1, 1, self.insights_img, "Insights", self.open_insights),
+            (2, 0, self.todo_img, "To-Do List", lambda: TodoApp(self.user_id, self.refresh_global)), 
+            (2, 1, self.journal_img, "Journal", lambda: JournalApp(self.user_id)),
+            (3, 0, self.chess_img, "Chess", self.open_chess),
+            (3, 1, self.health_img, "Health Tracker", self.health_tracker.show_window)
         ]
         for r, c, img, txt, cmd in btns:
             ctk.CTkButton(right, text=txt, image=img, compound="top", font=("Helvetica", 22, "bold"), fg_color="#0f172a", corner_radius=25, width=280, height=200, command=cmd).grid(row=r, column=c, padx=20, pady=10)
@@ -164,7 +170,7 @@ class DashboardApp(ctk.CTk):
         def load(n):
             try: return ctk.CTkImage(Image.open(os.path.join("assets", n)), size=(150, 150))
             except: return None
-        self.ai_img, self.calc_img, self.clock_img, self.insights_img, self.todo_img, self.journal_img, self.chess_img = map(load, ["Ai.png", "calc.png", "focus_timer.png", "insights.png", "todo.png", "journal.png", "chess.png"])
+        self.ai_img, self.calc_img, self.clock_img, self.insights_img, self.todo_img, self.journal_img, self.chess_img, self.health_img = map(load, ["Ai.png", "calc.png", "focus_timer.png", "insights.png", "todo.png", "journal.png", "chess.png", "health.png"])
 
     def update_clock(self):
         now = datetime.datetime.now()
@@ -191,14 +197,13 @@ class DashboardApp(ctk.CTk):
         else: messagebox.showerror("Required", "Please enter at least your Name and Class.")
 
     def open_chess(self):
-        from ui.board import ChessGame
-        ChessGame(800, 800, "Chess", 60).run()
+        import backend.chess_runner as chess_runner
+        chess_runner.main()
+        
     def cleanup(self):
         targets = ['backend', 'ui', '.']
         for target in targets:
             pycache_path = os.path.join(target, '__pycache__')
             if os.path.exists(pycache_path):
-                try:
-                    shutil.rmtree(pycache_path)
-                except:
-                    pass
+                try: shutil.rmtree(pycache_path)
+                except: pass

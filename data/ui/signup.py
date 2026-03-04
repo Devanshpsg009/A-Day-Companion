@@ -65,7 +65,7 @@ class SignupApp(ctk.CTk):
 
     def ask_for_api_key(self):
         if os.path.exists(".env") and "GROQ_API_KEY" in open(".env").read(): return
-        if messagebox.askokcancel("Setup AI", "In order to run AI, youu might need an API key. Click OK to open the website, then copy-paste the key here."):
+        if messagebox.askokcancel("Setup AI", "In order to run AI, you might need an API key. Click OK to open the website, then copy-paste the key here."):
             webbrowser.open("https://console.groq.com/keys")
             if api_key := ctk.CTkInputDialog(text="Paste your Groq API Key here:", title="API Setup").get_input():
                 with open(".env", "a") as f: f.write(f"\nGROQ_API_KEY={api_key.strip()}\n")
