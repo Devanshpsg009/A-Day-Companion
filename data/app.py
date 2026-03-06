@@ -1,4 +1,7 @@
 import sys, subprocess, importlib.util, os, shutil, zipfile
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+os.chdir(BASE_DIR)
+sys.path.insert(0, BASE_DIR)
 try:
     from ctypes import windll
     windll.shcore.SetProcessDpiAwareness(1)
