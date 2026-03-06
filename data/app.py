@@ -39,10 +39,6 @@ def run():
     from ui.login import LoginApp
     from ui.welcome import App
     (LoginApp() if has_users() else App()).mainloop()
-    if os.path.exists("engine") and os.listdir("engine"):
-        os.remove("assets/engine.zip")
-    with zipfile.ZipFile("assets/engine.zip") as zf:
-        zf.extractall("engine")
     cleanup()
 def cleanup():
         targets = ['backend', 'ui', '.']
