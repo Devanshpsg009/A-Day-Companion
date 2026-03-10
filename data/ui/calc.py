@@ -64,7 +64,8 @@ class CalculatorApp(ctk.CTkToplevel):
                 if val == 0.0:
                     val = 0.0
             result = str(val)
-            if result.endswith(".0"): result = result[:-2]
+            if result.endswith(".0"): 
+                result = result[:-2]
             self.history_text = f"{self.expr.replace('math.', '')} ="
             self.expr = result
             self.update_display()
