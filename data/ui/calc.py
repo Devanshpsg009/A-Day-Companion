@@ -59,13 +59,8 @@ class CalculatorApp(ctk.CTkToplevel):
             open_count, close_count = self.expr.count('('), self.expr.count(')')
             if open_count > close_count: self.expr += ')' * (open_count - close_count)
             val = eval(self.expr, {"__builtins__": None}, {"math": math, "abs": abs})
-            if isinstance(val, float):
-                val = round(val, 12)
-                if val == 0.0:
-                    val = 0.0
-            result = str(val)
-            if result.endswith(".0"): 
-                result = result[:-2]
+            result = str(round(val, 12) if isinstance(val, float) else val)
+            if result.endswith(".0"): result = result[:-2]
             self.history_text = f"{self.expr.replace('math.', '')} ="
             self.expr = result
             self.update_display()

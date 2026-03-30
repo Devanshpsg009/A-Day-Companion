@@ -1,7 +1,11 @@
 import pygame
+import os
 from backend.logic import GameState
 from backend.engine import ChessEngine
 from sys import exit
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
 class ChessGame:
     def __init__(self, width, height, title, fps, engine_path, level="1500"):
@@ -25,22 +29,22 @@ class ChessGame:
         self.promotion_pending = None
         self.game_over = False
         try:
-            self.move_sound = pygame.mixer.Sound("assets/move.wav")
+            self.move_sound = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "move.wav"))
         except:
             self.move_sound = None
         try:
-            self.capture_sound = pygame.mixer.Sound("assets/capture.wav")
+            self.capture_sound = pygame.mixer.Sound(os.path.join(ASSETS_DIR, "capture.wav"))
         except:
             self.capture_sound = None
 
     def load_pieces(self):
         piece_paths = {
-            "P_w": "assets/Chess_plt60.png", "P_b": "assets/Chess_pdt60.png",
-            "B_w": "assets/Chess_blt60.png", "B_b": "assets/Chess_bdt60.png",
-            "N_w": "assets/Chess_nlt60.png", "N_b": "assets/Chess_ndt60.png",
-            "R_w": "assets/Chess_rlt60.png", "R_b": "assets/Chess_rdt60.png",
-            "Q_w": "assets/Chess_qlt60.png", "Q_b": "assets/Chess_qdt60.png",
-            "K_w": "assets/Chess_klt60.png", "K_b": "assets/Chess_kdt60.png"
+            "P_w": os.path.join(ASSETS_DIR, "Chess_plt60.png"), "P_b": os.path.join(ASSETS_DIR, "Chess_pdt60.png"),
+            "B_w": os.path.join(ASSETS_DIR, "Chess_blt60.png"), "B_b": os.path.join(ASSETS_DIR, "Chess_bdt60.png"),
+            "N_w": os.path.join(ASSETS_DIR, "Chess_nlt60.png"), "N_b": os.path.join(ASSETS_DIR, "Chess_ndt60.png"),
+            "R_w": os.path.join(ASSETS_DIR, "Chess_rlt60.png"), "R_b": os.path.join(ASSETS_DIR, "Chess_rdt60.png"),
+            "Q_w": os.path.join(ASSETS_DIR, "Chess_qlt60.png"), "Q_b": os.path.join(ASSETS_DIR, "Chess_qdt60.png"),
+            "K_w": os.path.join(ASSETS_DIR, "Chess_klt60.png"), "K_b": os.path.join(ASSETS_DIR, "Chess_kdt60.png")
         }
         loaded = {}
         for name, path in piece_paths.items():

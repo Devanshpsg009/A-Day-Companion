@@ -11,6 +11,9 @@ import sys
 import queue
 import webbrowser
 from dotenv import load_dotenv
+
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 from tkinter import messagebox
 from backend.profile_db import get_profile, save_profile
 from ui.ai_chat import AIChat
@@ -41,7 +44,7 @@ class DashboardApp(ctk.CTk):
             '"Success is the sum of small efforts, repeated day in and day out."'
         ]
 
-        try: self.tray_image = Image.open("assets/Ai.png")
+        try: self.tray_image = Image.open(os.path.join(ASSETS_DIR, "Ai.png"))
         except: self.tray_image = Image.new("RGB", (64, 64), "white")
 
         self.start_tray()
@@ -168,7 +171,7 @@ class DashboardApp(ctk.CTk):
 
     def load_assets(self):
         def load(n):
-            try: return ctk.CTkImage(Image.open(os.path.join("assets", n)), size=(150, 150))
+            try: return ctk.CTkImage(Image.open(os.path.join(ASSETS_DIR, n)), size=(150, 150))
             except: return None
         self.ai_img, self.calc_img, self.clock_img, self.insights_img, self.todo_img, self.journal_img, self.chess_img, self.health_img = map(load, ["Ai.png", "calc.png", "focus_timer.png", "insights.png", "todo.png", "journal.png", "chess.png", "health.png"])
 

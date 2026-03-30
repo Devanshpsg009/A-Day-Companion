@@ -2,6 +2,9 @@ import customtkinter as ctk
 from PIL import Image
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
 
@@ -21,7 +24,7 @@ class App(ctk.CTk):
         
         sidebar = ctk.CTkFrame(self, fg_color="#0a1128", width=420)
         sidebar.pack(side="left", fill="y"); sidebar.pack_propagate(False)
-        try: ctk.CTkLabel(sidebar, image=ctk.CTkImage(Image.open(os.path.join("assets", "logo.png")), size=(240, 240)), text="").pack(pady=(90, 25))
+        try: ctk.CTkLabel(sidebar, image=ctk.CTkImage(Image.open(os.path.join(ASSETS_DIR, "logo.png")), size=(240, 240)), text="").pack(pady=(90, 25))
         except: pass
         ctk.CTkLabel(sidebar, text="Boost your productivity\n", font=("Helvetica", 28, "bold"), text_color="white").pack(padx=20)
         

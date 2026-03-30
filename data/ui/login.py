@@ -3,6 +3,9 @@ from tkinter import messagebox
 from PIL import Image
 from backend.auth import authenticate_user, update_password, email_exists, verify_totp
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
 ctk.set_appearance_mode("dark"); ctk.set_default_color_theme("dark-blue")
 
 class LoginApp(ctk.CTk):
@@ -13,7 +16,7 @@ class LoginApp(ctk.CTk):
         self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
         self.image_frame.grid(row=0, column=0, sticky="nsew")
         try:
-            img = Image.open(os.path.join("assets", "lsbg.png"))
+            img = Image.open(os.path.join(ASSETS_DIR, "lsbg.png"))
             ctk.CTkLabel(self.image_frame, image=ctk.CTkImage(light_image=img, dark_image=img, size=(450, 600)), text="").place(x=0, y=0, relwidth=1, relheight=1)
         except: ctk.CTkLabel(self.image_frame, text="A Day Companion", font=("Helvetica", 30, "bold")).place(relx=0.5, rely=0.5, anchor="center")
         self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")

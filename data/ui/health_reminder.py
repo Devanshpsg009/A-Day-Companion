@@ -2,6 +2,9 @@ import customtkinter as ctk
 from PIL import Image
 import os
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
 class AnimatedGifLabel(ctk.CTkLabel):
     def __init__(self, master, gif_path, size=(180, 180), **kwargs):
         super().__init__(master, text="", **kwargs)
@@ -111,8 +114,9 @@ class HealthReminderApp(ctk.CTkToplevel):
         
         ctk.CTkLabel(win, text="Time to drink water! 💧", font=("Arial", 20, "bold")).pack(pady=20)
         
-        if os.path.exists("assets/water.gif"):
-            AnimatedGifLabel(win, "assets/water.gif", size=(200, 200)).pack(pady=10)
+        water_gif_path = os.path.join(ASSETS_DIR, "water.gif")
+        if os.path.exists(water_gif_path):
+            AnimatedGifLabel(win, water_gif_path, size=(200, 200)).pack(pady=10)
             
         ctk.CTkButton(win, text="Hydrated", command=win.destroy).pack(pady=20)
 
@@ -127,16 +131,19 @@ class HealthReminderApp(ctk.CTkToplevel):
         
         ctk.CTkLabel(scroll, text="Time for a Quick Stretch!", font=("Arial", 20, "bold")).pack(pady=10)
         
-        if os.path.exists("assets/eye.gif"):
-            AnimatedGifLabel(scroll, "assets/eye.gif", size=(150, 150)).pack(pady=10)
+        eye_gif_path = os.path.join(ASSETS_DIR, "eye.gif")
+        if os.path.exists(eye_gif_path):
+            AnimatedGifLabel(scroll, eye_gif_path, size=(150, 150)).pack(pady=10)
         ctk.CTkLabel(scroll, text="Gently blink your eyes 20 times.", font=("Arial", 14)).pack(pady=5)
         
-        if os.path.exists("assets/neck.gif"):
-            AnimatedGifLabel(scroll, "assets/neck.gif", size=(150, 150)).pack(pady=10)
+        neck_gif_path = os.path.join(ASSETS_DIR, "neck.gif")
+        if os.path.exists(neck_gif_path):
+            AnimatedGifLabel(scroll, neck_gif_path, size=(150, 150)).pack(pady=10)
         ctk.CTkLabel(scroll, text="Gently roll your neck left and right.", font=("Arial", 14)).pack(pady=5)
         
-        if os.path.exists("assets/spine.gif"):
-            AnimatedGifLabel(scroll, "assets/spine.gif", size=(150, 150)).pack(pady=10)
+        spine_gif_path = os.path.join(ASSETS_DIR, "spine.gif")
+        if os.path.exists(spine_gif_path):
+            AnimatedGifLabel(scroll, spine_gif_path, size=(150, 150)).pack(pady=10)
         ctk.CTkLabel(scroll, text="Sit straight and stretch your spine.", font=("Arial", 14)).pack(pady=5)
         
         ctk.CTkButton(scroll, text="Finished", command=win.destroy).pack(pady=20)
