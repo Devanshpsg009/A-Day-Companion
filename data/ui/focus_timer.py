@@ -4,6 +4,9 @@ import os
 from tkinter import messagebox
 import pygame
 
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
 class FocusTimerApp(ctk.CTkToplevel):
     def __init__(self):
         super().__init__()
@@ -171,7 +174,7 @@ class FocusTimerApp(ctk.CTkToplevel):
         self.after(1000, self.check_alarm_loop)
 
     def trigger_alarm_sound(self):
-        sound_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "assets", "alarm.mp3")
+        sound_path = os.path.join(ASSETS_DIR, "alarm.mp3")
         if not os.path.exists(sound_path): return messagebox.showerror("Error", "alarm.mp3 missing.")
         try:
             pygame.mixer.music.load(sound_path)

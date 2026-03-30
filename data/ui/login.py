@@ -1,12 +1,27 @@
 import customtkinter as ctk, os
-from tkinter import messagebox
+from tkinter import messagebox, PhotoImage
 from PIL import Image
+import io
 from backend.auth import authenticate_user, update_password, email_exists, verify_totp
 
+# Calculate asset directory with absolute path
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
 ctk.set_appearance_mode("dark"); ctk.set_default_color_theme("dark-blue")
+
+def pil_image_to_tkinter(pil_img, size=None):
+    """Convert PIL Image to tkinter PhotoImage without needing ImageTk"""
+    try:
+        if size:
+            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
+        # Convert to PPM format which tkinter understands
+        with io.BytesIO() as output:
+            pil_img.save(output, format="PPM")
+            data = output.getvalue()
+        return PhotoImage(data=data)
+    except Exception as e:
+        return None
 
 class LoginApp(ctk.CTk):
     def __init__(self):
@@ -15,10 +30,26 @@ class LoginApp(ctk.CTk):
         self.grid_columnconfigure(0, weight=1); self.grid_columnconfigure(1, weight=1); self.grid_rowconfigure(0, weight=1)
         self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
         self.image_frame.grid(row=0, column=0, sticky="nsew")
+        
+        # Try to load background image
+        img_loaded = False
         try:
-            img = Image.open(os.path.join(ASSETS_DIR, "lsbg.png"))
-            ctk.CTkLabel(self.image_frame, image=ctk.CTkImage(light_image=img, dark_image=img, size=(450, 600)), text="").place(x=0, y=0, relwidth=1, relheight=1)
-        except: ctk.CTkLabel(self.image_frame, text="A Day Companion", font=("Helvetica", 30, "bold")).place(relx=0.5, rely=0.5, anchor="center")
+            lsbg_path = os.path.join(ASSETS_DIR, "lsbg.png")
+            img = Image.open(lsbg_path)
+            # Convert to tkinter PhotoImage
+            tk_img = pil_image_to_tkinter(img, size=(450, 600))
+            if tk_img:
+                import tkinter as tk
+                label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
+                label.image = tk_img  # Keep a reference
+                label.place(x=0, y=0, relwidth=1, relheight=1)
+                img_loaded = True
+        except Exception as e:
+            pass
+        
+        if not img_loaded:
+            ctk.CTkLabel(self.image_frame, text="A Day Companion", font=("Helvetica", 30, "bold"), text_color="white").place(relx=0.5, rely=0.5, anchor="center")
+        
         self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")
         self.form_frame.grid(row=0, column=1, sticky="nsew")
         self.center_box = ctk.CTkFrame(self.form_frame, fg_color="transparent")

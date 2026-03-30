@@ -1,11 +1,25 @@
 import customtkinter as ctk, os, re, webbrowser, qrcode, pyotp
-from tkinter import messagebox
+from tkinter import messagebox, PhotoImage
 from PIL import Image
+import io
 from backend.auth import create_user
 from backend.database import create_users_table
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
+
+def pil_image_to_tkinter(pil_img, size=None):
+    """Convert PIL Image to tkinter PhotoImage without needing ImageTk"""
+    try:
+        if size:
+            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
+        # Convert to PPM format which tkinter understands
+        with io.BytesIO() as output:
+            pil_img.save(output, format="PPM")
+            data = output.getvalue()
+        return PhotoImage(data=data)
+    except Exception:
+        return None
 
 ctk.set_appearance_mode("dark"); ctk.set_default_color_theme("dark-blue")
 
@@ -16,10 +30,25 @@ class SignupApp(ctk.CTk):
         self.grid_columnconfigure(0, weight=1); self.grid_columnconfigure(1, weight=1); self.grid_rowconfigure(0, weight=1)
         self.image_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#000000")
         self.image_frame.grid(row=0, column=0, sticky="nsew")
+        
+        # Try to load background image
+        img_loaded = False
         try:
-            img = Image.open(os.path.join(ASSETS_DIR, "lsbg.png"))
-            ctk.CTkLabel(self.image_frame, image=ctk.CTkImage(light_image=img, dark_image=img, size=(450, 600)), text="").place(x=0, y=0, relwidth=1, relheight=1)
-        except: ctk.CTkLabel(self.image_frame, text="Join Us", font=("Helvetica", 30)).place(relx=0.5, rely=0.5)
+            lsbg_path = os.path.join(ASSETS_DIR, "lsbg.png")
+            img = Image.open(lsbg_path)
+            tk_img = pil_image_to_tkinter(img, size=(450, 600))
+            if tk_img:
+                import tkinter as tk
+                label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
+                label.image = tk_img
+                label.place(x=0, y=0, relwidth=1, relheight=1)
+                img_loaded = True
+        except Exception:
+            pass
+        
+        if not img_loaded:
+            ctk.CTkLabel(self.image_frame, text="Join Us", font=("Helvetica", 30), text_color="white").place(relx=0.5, rely=0.5, anchor="center")
+        
         self.form_frame = ctk.CTkFrame(self, corner_radius=0, fg_color="#0f172a")
         self.form_frame.grid(row=0, column=1, sticky="nsew")
         self.center_box = ctk.CTkFrame(self.form_frame, fg_color="transparent")
@@ -56,10 +85,20 @@ class SignupApp(ctk.CTk):
         top = ctk.CTkToplevel(self)
         top.geometry("400x550"); top.title("Setup 2FA Recovery"); top.attributes("-topmost", True); top.resizable(False, False)
         ctk.CTkLabel(top, text="Scan with Google Authenticator", font=("Helvetica", 18, "bold")).pack(pady=20)
+        
         try:
             img = Image.open(qr_path)
-            ctk.CTkLabel(top, image=ctk.CTkImage(light_image=img, dark_image=img, size=(250, 250)), text="").pack(pady=10)
-        except: ctk.CTkLabel(top, text="[QR Code Error]").pack()
+            tk_img = pil_image_to_tkinter(img, size=(250, 250))
+            if tk_img:
+                import tkinter as tk
+                label = tk.Label(top, image=tk_img, bg="#0f172a")
+                label.image = tk_img
+                label.pack(pady=10)
+            else:
+                ctk.CTkLabel(top, text="[QR Code Error]").pack()
+        except:
+            ctk.CTkLabel(top, text="[QR Code Error]").pack()
+        
         ctk.CTkLabel(top, text="This is your Recovery Key for password resets.", text_color="gray").pack(pady=10)
         def close_and_login():
             if os.path.exists(qr_path): os.remove(qr_path)

@@ -1,12 +1,27 @@
 import customtkinter as ctk
 from PIL import Image
 import os
+from tkinter import PhotoImage
+import io
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
+
+def pil_image_to_tkinter(pil_img, size=None):
+    """Convert PIL Image to tkinter PhotoImage without needing ImageTk"""
+    try:
+        if size:
+            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
+        # Convert to PPM format which tkinter understands
+        with io.BytesIO() as output:
+            pil_img.save(output, format="PPM")
+            data = output.getvalue()
+        return PhotoImage(data=data)
+    except Exception:
+        return None
 
 PAGES = [
     {"title": "Welcome", "text": "Your intelligent daily companion for focus, balance, and productivity."},
@@ -24,8 +39,20 @@ class App(ctk.CTk):
         
         sidebar = ctk.CTkFrame(self, fg_color="#0a1128", width=420)
         sidebar.pack(side="left", fill="y"); sidebar.pack_propagate(False)
-        try: ctk.CTkLabel(sidebar, image=ctk.CTkImage(Image.open(os.path.join(ASSETS_DIR, "logo.png")), size=(240, 240)), text="").pack(pady=(90, 25))
-        except: pass
+        
+        # Try to load logo image
+        try:
+            logo_path = os.path.join(ASSETS_DIR, "logo.png")
+            img = Image.open(logo_path)
+            # Convert to tkinter PhotoImage
+            tk_img = pil_image_to_tkinter(img, size=(240, 240))
+            if tk_img:
+                import tkinter as tk
+                label = tk.Label(sidebar, image=tk_img, bg="#0a1128")
+                label.image = tk_img  # Keep a reference
+                label.pack(pady=(90, 25))
+        except Exception:
+            pass
         ctk.CTkLabel(sidebar, text="Boost your productivity\n", font=("Helvetica", 28, "bold"), text_color="white").pack(padx=20)
         
         self.content = ctk.CTkFrame(self, fg_color="#1c2541", border_color="#5bc0be", border_width=2, corner_radius=36)

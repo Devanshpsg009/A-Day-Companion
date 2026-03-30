@@ -1,10 +1,14 @@
 import customtkinter as ctk
 import sqlite3
-import matplotlib.pyplot as plt
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import datetime
 from datetime import timedelta
 import random
+
+# Defer matplotlib imports to avoid ImageTk issues
+def _import_matplotlib():
+    import matplotlib.pyplot as plt
+    from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+    return plt, FigureCanvasTkAgg
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("dark-blue")
@@ -161,6 +165,12 @@ class InsightsApp(ctk.CTkToplevel):
         ctk.CTkLabel(card, text=str(value), font=("Arial", 24, "bold"), text_color=color).pack(pady=(0,5))
 
     def embed_chart(self, parent, chart_type, data, labels, color):
+        try:
+            plt, FigureCanvasTkAgg = _import_matplotlib()
+        except ImportError:
+            ctk.CTkLabel(parent, text="Chart unavailable - matplotlib issue", text_color="gray").pack(pady=20)
+            return
+            
         fig = plt.Figure(figsize=(4, 3), dpi=100, facecolor="#0f172a")
         ax = fig.add_subplot(111)
         ax.set_facecolor("#0f172a")
