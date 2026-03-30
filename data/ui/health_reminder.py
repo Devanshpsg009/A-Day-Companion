@@ -1,20 +1,9 @@
 import customtkinter as ctk
-from PIL import Image
+from PIL import Image, ImageTk
 import os
-from tkinter import PhotoImage
-import io
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
-
-def pil_image_to_ctk(pil_img, size=None):
-    """Convert PIL Image to ctk.CTkImage"""
-    try:
-        if size:
-            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
-        return ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=size if size else pil_img.size)
-    except Exception:
-        return None
 
 class AnimatedGifLabel(ctk.CTkLabel):
     def __init__(self, master, gif_path, size=(180, 180), **kwargs):
@@ -31,7 +20,7 @@ class AnimatedGifLabel(ctk.CTkLabel):
             for i in range(img.n_frames):
                 img.seek(i)
                 frame_image = img.copy().convert("RGBA").resize(size, Image.Resampling.LANCZOS)
-                ctk_frame = pil_image_to_ctk(frame_image, size=size)
+                ctk_frame = ctk.CTkImage(light_image=frame_image, dark_image=frame_image, size=size)
                 if ctk_frame:
                     self.frames.append(ctk_frame)
                 

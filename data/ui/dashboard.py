@@ -1,6 +1,6 @@
 import shutil
 import customtkinter as ctk
-from PIL import Image
+from PIL import Image, ImageTk
 import datetime
 import os
 import random
@@ -10,33 +10,11 @@ import pystray
 import sys
 import queue
 import webbrowser
-from tkinter import messagebox, PhotoImage
-import io
+from tkinter import messagebox
 from dotenv import load_dotenv
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
-
-def pil_image_to_ctk(pil_img, size=None):
-    """Convert PIL Image to ctk.CTkImage using PPM format"""
-    try:
-        if size:
-            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
-        # Try to create CTkImage - will fail if ImageTk not available
-        try:
-            return ctk.CTkImage(light_image=pil_img, dark_image=pil_img, size=size if size else pil_img.size)
-        except ImportError:
-            # ImageTk not available, use PPM as fallback
-            with io.BytesIO() as output:
-                pil_img.save(output, format="PPM")
-                data = output.getvalue()
-            tk_img = PhotoImage(data=data)
-            # Wrap PhotoImage in a lambda to keep reference alive
-            pil_img._tk_image_ref = tk_img
-            # Return None, let caller handle it
-            return None
-    except Exception:
-        return None
 from tkinter import messagebox
 from backend.profile_db import get_profile, save_profile
 from ui.ai_chat import AIChat
@@ -196,7 +174,8 @@ class DashboardApp(ctk.CTk):
         def load(n):
             try:
                 img = Image.open(os.path.join(ASSETS_DIR, n))
-                return pil_image_to_ctk(img, size=(150, 150))
+                img = img.resize((150, 150), Image.Resampling.LANCZOS)
+                return ctk.CTkImage(light_image=img, dark_image=img, size=(150, 150))
             except:
                 return None
         self.ai_img, self.calc_img, self.clock_img, self.insights_img, self.todo_img, self.journal_img, self.chess_img, self.health_img = map(load, ["Ai.png", "calc.png", "focus_timer.png", "insights.png", "todo.png", "journal.png", "chess.png", "health.png"])

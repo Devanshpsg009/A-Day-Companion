@@ -1,7 +1,6 @@
 import customtkinter as ctk, os
-from tkinter import messagebox, PhotoImage
-from PIL import Image
-import io
+from tkinter import messagebox
+from PIL import Image, ImageTk
 from backend.auth import authenticate_user, update_password, email_exists, verify_totp
 
 # Calculate asset directory with absolute path
@@ -9,19 +8,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
 
 ctk.set_appearance_mode("dark"); ctk.set_default_color_theme("dark-blue")
-
-def pil_image_to_tkinter(pil_img, size=None):
-    """Convert PIL Image to tkinter PhotoImage without needing ImageTk"""
-    try:
-        if size:
-            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
-        # Convert to PPM format which tkinter understands
-        with io.BytesIO() as output:
-            pil_img.save(output, format="PPM")
-            data = output.getvalue()
-        return PhotoImage(data=data)
-    except Exception as e:
-        return None
 
 class LoginApp(ctk.CTk):
     def __init__(self):
@@ -36,14 +22,13 @@ class LoginApp(ctk.CTk):
         try:
             lsbg_path = os.path.join(ASSETS_DIR, "lsbg.png")
             img = Image.open(lsbg_path)
-            # Convert to tkinter PhotoImage
-            tk_img = pil_image_to_tkinter(img, size=(450, 600))
-            if tk_img:
-                import tkinter as tk
-                label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
-                label.image = tk_img  # Keep a reference
-                label.place(x=0, y=0, relwidth=1, relheight=1)
-                img_loaded = True
+            img = img.resize((450, 600), Image.Resampling.LANCZOS)
+            tk_img = ImageTk.PhotoImage(img)
+            import tkinter as tk
+            label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
+            label.image = tk_img  # Keep a reference
+            label.place(x=0, y=0, relwidth=1, relheight=1)
+            img_loaded = True
         except Exception as e:
             pass
         

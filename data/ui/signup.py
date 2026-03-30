@@ -1,25 +1,11 @@
 import customtkinter as ctk, os, re, webbrowser, qrcode, pyotp
-from tkinter import messagebox, PhotoImage
-from PIL import Image
-import io
+from tkinter import messagebox
+from PIL import Image, ImageTk
 from backend.auth import create_user
 from backend.database import create_users_table
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS_DIR = os.path.join(BASE_DIR, "assets")
-
-def pil_image_to_tkinter(pil_img, size=None):
-    """Convert PIL Image to tkinter PhotoImage without needing ImageTk"""
-    try:
-        if size:
-            pil_img = pil_img.resize(size, Image.Resampling.LANCZOS)
-        # Convert to PPM format which tkinter understands
-        with io.BytesIO() as output:
-            pil_img.save(output, format="PPM")
-            data = output.getvalue()
-        return PhotoImage(data=data)
-    except Exception:
-        return None
 
 ctk.set_appearance_mode("dark"); ctk.set_default_color_theme("dark-blue")
 
@@ -36,13 +22,13 @@ class SignupApp(ctk.CTk):
         try:
             lsbg_path = os.path.join(ASSETS_DIR, "lsbg.png")
             img = Image.open(lsbg_path)
-            tk_img = pil_image_to_tkinter(img, size=(450, 600))
-            if tk_img:
-                import tkinter as tk
-                label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
-                label.image = tk_img
-                label.place(x=0, y=0, relwidth=1, relheight=1)
-                img_loaded = True
+            img = img.resize((450, 600), Image.Resampling.LANCZOS)
+            tk_img = ImageTk.PhotoImage(img)
+            import tkinter as tk
+            label = tk.Label(self.image_frame, image=tk_img, bg="#000000")
+            label.image = tk_img
+            label.place(x=0, y=0, relwidth=1, relheight=1)
+            img_loaded = True
         except Exception:
             pass
         
@@ -88,14 +74,12 @@ class SignupApp(ctk.CTk):
         
         try:
             img = Image.open(qr_path)
-            tk_img = pil_image_to_tkinter(img, size=(250, 250))
-            if tk_img:
-                import tkinter as tk
-                label = tk.Label(top, image=tk_img, bg="#0f172a")
-                label.image = tk_img
-                label.pack(pady=10)
-            else:
-                ctk.CTkLabel(top, text="[QR Code Error]").pack()
+            img = img.resize((250, 250), Image.Resampling.LANCZOS)
+            tk_img = ImageTk.PhotoImage(img)
+            import tkinter as tk
+            label = tk.Label(top, image=tk_img, bg="#0f172a")
+            label.image = tk_img
+            label.pack(pady=10)
         except:
             ctk.CTkLabel(top, text="[QR Code Error]").pack()
         
