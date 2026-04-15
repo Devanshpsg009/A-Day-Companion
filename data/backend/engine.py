@@ -1,14 +1,17 @@
-import chess 
-import chess .engine 
-import random 
+
+import chess
+import chess.engine
+import random
 
 class ChessEngine :
     def __init__ (self ,executable_path ,level ="1500"):
-        self .engine =chess .engine .SimpleEngine .popen_uci (executable_path )
-        self .set_level (level )
+        self.engine =chess.engine.SimpleEngine.popen_uci (executable_path )
+        self.set_level (level )
+
 
     def set_level (self ,level ):
         elo_map ={
+
         "500":{"skill":0 ,"depth":1 ,"time":0.05 ,"random":0.70 },
         "800":{"skill":0 ,"depth":1 ,"time":0.05 ,"random":0.50 },
         "1000":{"skill":1 ,"depth":2 ,"time":0.1 ,"random":0.40 },
@@ -23,41 +26,45 @@ class ChessEngine :
         "Maximum":{"skill":20 ,"depth":None ,"time":8.0 ,"random":0.0 }
         }
 
-        config =elo_map .get (str (level ),elo_map ["1500"])
+        config =elo_map.get (str (level ),elo_map ["1500"])
 
-        self .engine .configure ({
+        self.engine.configure ({
         "Skill Level":config ["skill"],
         "Threads":1 ,
-        "Hash":64 
+        "Hash":64
         })
 
-        self .time_limit =config ["time"]
-        self .depth =config ["depth"]
-        self .random_chance =config ["random"]
+        self.time_limit =config ["time"]
+        self.depth =config ["depth"]
+        self.random_chance =config ["random"]
 
     def get_best_move (self ,fen ):
-        board =chess .Board (fen )
 
-        if self .random_chance >0 and random .random ()<self .random_chance :
-            move =random .choice (list (board .legal_moves ))
+        board =chess.Board (fen )
+
+
+        if self.random_chance >0 and random.random ()<self.random_chance :
+            move =random.choice (list (board.legal_moves ))
         else :
-            if self .depth :
-                limit =chess .engine .Limit (time =self .time_limit ,depth =self .depth )
+            if self.depth :
+                limit =chess.engine.Limit (time =self.time_limit ,depth =self.depth )
             else :
-                limit =chess .engine .Limit (time =self .time_limit )
+                limit =chess.engine.Limit (time =self.time_limit )
 
-            result =self .engine .play (board ,limit )
-            move =result .move 
+            result =self.engine.play (board ,limit )
+            move =result.move
 
-        start_row =7 -(move .from_square //8 )
-        start_col =move .from_square %8 
-        end_row =7 -(move .to_square //8 )
-        end_col =move .to_square %8 
+
+        start_row =7 -(move.from_square //8 )
+        start_col =move.from_square %8
+        end_row =7 -(move.to_square //8 )
+        end_col =move.to_square %8
 
         return (start_row ,start_col ),(end_row ,end_col )
 
+
     def quit (self ):
         try :
-            self .engine .quit ()
+            self.engine.quit ()
         except :
-            pass 
+            pass

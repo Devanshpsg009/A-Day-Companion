@@ -1,3 +1,4 @@
+
 import os
 import sqlite3
 import json
@@ -14,7 +15,6 @@ JOURNAL_DB = "journal.db"
 
 
 def init_db():
-    """Create the AI database tables if they are missing."""
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute(
             "CREATE TABLE IF NOT EXISTS ai_usage (user_id INTEGER, day TEXT, count INTEGER, PRIMARY KEY (user_id, day))"
@@ -24,43 +24,44 @@ def init_db():
         )
 
 
+
 def daily_count(user_id):
-    """Return the number of AI prompts used by the user today."""
     init_db()
     with sqlite3.connect(DB_FILE) as conn:
         row = conn.execute(
             "SELECT count FROM ai_usage WHERE user_id=? AND day=?",
             (user_id, date.today().isoformat()),
         ).fetchone()
+
         if row:
             return row[0]
     return 0
 
 
 def increment_count(user_id):
-    """Increase the prompt count for the current user and day."""
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute(
             "INSERT INTO ai_usage (user_id, day, count) VALUES (?, ?, 1) "
             "ON CONFLICT(user_id, day) DO UPDATE SET count = count + 1",
             (user_id, date.today().isoformat()),
+
         )
 
 
 def save_memory(user_id, role, content):
-    """Save a chat message for the user."""
     with sqlite3.connect(DB_FILE) as conn:
         conn.execute(
             "INSERT INTO ai_memory VALUES (?, ?, ?)",
             (user_id, role, content),
+
         )
 
 
 def load_memory(user_id, limit=10):
-    """Load the latest AI chat history for the user."""
     with sqlite3.connect(DB_FILE) as conn:
         rows = conn.execute(
             "SELECT role, content FROM ai_memory WHERE user_id=? ORDER BY rowid DESC LIMIT ?",
+
             (user_id, limit),
         ).fetchall()
 
@@ -71,9 +72,9 @@ def load_memory(user_id, limit=10):
 
 
 def get_latest_journal_context(user_id):
-    """Return the latest journal entry summary for AI context."""
     if not os.path.exists(JOURNAL_DB):
         return None
+
 
     try:
         with sqlite3.connect(JOURNAL_DB) as conn:
@@ -86,7 +87,7 @@ def get_latest_journal_context(user_id):
                 journal_text, journal_mood, journal_score, journal_date = row
                 return (
                     f"LATEST JOURNAL ({journal_date}): Mood: {journal_mood} "
-                    f"({journal_score}/10). Content: {journal_text[:500]}"
+                    f"({journal_score}/10).Content: {journal_text[:500]}"
                 )
     except Exception:
         return None
@@ -94,23 +95,21 @@ def get_latest_journal_context(user_id):
     return None
 
 
-# ------------------ OPENROUTER SETUP ------------------
-
 def get_client():
     api_key = os.getenv("OPENROUTER_API_KEY")
+
     if not api_key:
         return None
 
+
     return OpenAI(
         api_key=api_key,
-        base_url="https://openrouter.ai/api/v1"
+        base_url="https://openrouter.ai/api/v1",
     )
 
 
-# ------------------ MAIN AI FUNCTION ------------------
-
 def ask_ai(user_id, prompt):
-    """Send the prompt to the AI and return the assistant reply."""
+
     init_db()
 
     client = get_client()
@@ -150,7 +149,7 @@ def ask_ai(user_id, prompt):
 
     try:
         response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo",  # 🔥 good + cheap model
+            model="openai/gpt-3.5-turbo",
             messages=messages,
             temperature=0.7,
             max_tokens=600,
@@ -168,11 +167,8 @@ def ask_ai(user_id, prompt):
         return f"Connection Error: {str(error)}"
 
 
-# ------------------ SENTIMENT ANALYSIS ------------------
 
 def analyze_sentiment(user_id, journal_text):
-    """Ask AI to analyze journal mood and return structured feedback."""
-
     if not journal_text or len(journal_text.split()) < 5:
         return None
 
@@ -182,7 +178,7 @@ def analyze_sentiment(user_id, journal_text):
 
     prompt = (
         f"Journal Entry: '{journal_text}'\n"
-        "Return ONLY raw JSON with keys: mood (str), score (1-10), advice (str). Be warm and motivating."
+        "Return ONLY raw JSON with keys: mood (str), score (1-10), advice (str).Be warm and motivating."
     )
 
     try:
@@ -195,7 +191,6 @@ def analyze_sentiment(user_id, journal_text):
 
         text_response = response.choices[0].message.content.strip()
 
-        # Clean markdown if present
         cleaned_response = text_response.replace("```json", "").replace("```", "").strip()
 
         return json.loads(cleaned_response)

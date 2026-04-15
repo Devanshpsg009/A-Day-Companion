@@ -1,3 +1,4 @@
+
 import customtkinter as ctk
 from tkinter import messagebox
 from backend.ai import ask_ai, daily_count, MAX_DAILY_PROMPTS
@@ -10,6 +11,7 @@ class AIChat(ctk.CTkToplevel):
         self.user_id = user_id
 
         profile = get_profile(user_id)
+
         if profile is None:
             messagebox.showerror("Error", "Profile not found")
             self.destroy()
@@ -25,11 +27,10 @@ class AIChat(ctk.CTkToplevel):
 
         self.build_ui()
 
-    # ---------------- UI ----------------
     def build_ui(self):
-        # HEADER
         header = ctk.CTkFrame(self, fg_color="#1e293b", height=70)
         header.pack(fill="x")
+
 
         left = ctk.CTkFrame(header, fg_color="transparent")
         left.pack(side="left", padx=20, pady=10)
@@ -56,7 +57,6 @@ class AIChat(ctk.CTkToplevel):
         )
         self.prompt_label.pack(side="right", padx=20)
 
-        # CHAT AREA
         self.chat_frame = ctk.CTkScrollableFrame(
             self,
             fg_color="#020617",
@@ -64,7 +64,6 @@ class AIChat(ctk.CTkToplevel):
         )
         self.chat_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
-        # INPUT AREA
         bottom = ctk.CTkFrame(self, fg_color="#1e293b", height=70)
         bottom.pack(fill="x")
 
@@ -94,7 +93,6 @@ class AIChat(ctk.CTkToplevel):
         )
         send_button.pack(side="right", padx=15)
 
-        # WELCOME MESSAGE
         self.add_message(
             f"Hey {self.user_name}! 👋\nI'm your AI study companion.\nAsk me anything about studies, focus, or productivity.",
             is_user=False,
@@ -104,9 +102,10 @@ class AIChat(ctk.CTkToplevel):
         remaining = MAX_DAILY_PROMPTS - daily_count(self.user_id)
         return f"{remaining} Prompts Left"
 
-    # ---------------- MESSAGE UI (FIXED) ----------------
+
     def add_message(self, text, is_user=False):
         container = ctk.CTkFrame(self.chat_frame, fg_color="transparent")
+
         container.pack(fill="x", pady=6, padx=8)
 
         align = "e" if is_user else "w"
@@ -115,27 +114,27 @@ class AIChat(ctk.CTkToplevel):
         bubble = ctk.CTkFrame(
             container,
             fg_color=bubble_color,
-            corner_radius=16
+            corner_radius=16,
         )
         bubble.pack(anchor=align, padx=10)
 
-        # ✅ FIX: using Label instead of Textbox (no big boxes now)
         label = ctk.CTkLabel(
             bubble,
             text=text,
             wraplength=400,
             justify="left",
             font=("Helvetica", 14),
-            text_color="white" if is_user else "#e5e7eb"
+            text_color="white" if is_user else "#e5e7eb",
         )
         label.pack(padx=12, pady=8)
 
         self.chat_frame.update_idletasks()
         self.chat_frame._parent_canvas.yview_moveto(1.0)
 
-    # ---------------- SEND ----------------
     def on_enter_pressed(self, event):
+
         self.send()
+
 
     def send(self):
         text = self.input_box.get().strip()
@@ -144,10 +143,8 @@ class AIChat(ctk.CTkToplevel):
 
         self.input_box.delete(0, "end")
 
-        # user message
         self.add_message(text, is_user=True)
 
-        # typing indicator
         thinking_container = ctk.CTkFrame(self.chat_frame, fg_color="transparent")
         thinking_container.pack(fill="x", pady=6)
 
@@ -161,14 +158,11 @@ class AIChat(ctk.CTkToplevel):
 
         self.chat_frame.update()
 
-        # AI response
+
         reply = ask_ai(self.user_id, text)
 
-        # remove typing
         thinking_container.destroy()
 
-        # show reply
         self.add_message(reply, is_user=False)
 
-        # update counter
         self.prompt_label.configure(text=self.get_prompt_text())
