@@ -1,14 +1,10 @@
-
 import sqlite3
 
 DB_NAME = "profiles.db"
 
-
 def init_db():
     with sqlite3.connect(DB_NAME) as conn:
-
-        conn.execute(
-            """
+        conn.execute("""
             CREATE TABLE IF NOT EXISTS profiles (
                 user_id INTEGER PRIMARY KEY,
                 full_name TEXT,
@@ -16,12 +12,9 @@ def init_db():
                 hobbies TEXT,
                 goals TEXT
             )
-        """
-        )
-
+        """)
 
 def save_profile(user_id, name, user_class, hobbies, goals):
-
     init_db()
     with sqlite3.connect(DB_NAME) as conn:
         conn.execute(
@@ -32,8 +25,6 @@ def save_profile(user_id, name, user_class, hobbies, goals):
         """,
             (user_id, name, user_class, hobbies, goals),
         )
-
-
 
 def get_profile(user_id):
     init_db()
