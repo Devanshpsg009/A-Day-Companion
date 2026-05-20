@@ -12,14 +12,13 @@ try:
     from ctypes import windll
     windll.shcore.SetProcessDpiAwareness(1)
 except Exception:
-    pass
+    pass 
 
 PACKAGES = {
     "customtkinter": "customtkinter",
     "Pillow": "PIL",
     "bcrypt": "bcrypt",
     "python-dotenv": "dotenv",
-    "openai": "openai",
     "pygame": "pygame",
     "matplotlib": "matplotlib",
     "plyer": "plyer",
@@ -27,7 +26,8 @@ PACKAGES = {
     "pyotp": "pyotp",
     "qrcode": "qrcode",
     "chess": "chess",
-    "psutil": "psutil"
+    "psutil": "psutil",
+    "requests": "requests",
 }
 
 def missing_packages():
@@ -58,11 +58,13 @@ def install_packages(packages):
         root.update()
         try:
             subprocess.check_call(
+                
                 [
                     sys.executable,
                     "-m",
                     "pip",
                     "install",
+                    
                     "--user",
                     "--break-system-packages",
                     package_name,
@@ -94,7 +96,7 @@ def cleanup_pycache():
                 shutil.rmtree(pycache_path)
             except Exception:
                 pass
-
+ 
 def run_app():
     packages = missing_packages()
     if packages:

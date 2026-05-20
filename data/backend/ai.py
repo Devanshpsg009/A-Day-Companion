@@ -1,15 +1,16 @@
 import os
 import sqlite3
 import json
+import requests
 from datetime import date
 from dotenv import load_dotenv
-from openai import OpenAI
 from backend.profile_db import get_profile
 
 load_dotenv()
 MAX_DAILY_PROMPTS = 30
 DB_FILE = "ai_memory.db"
 JOURNAL_DB = "journal.db"
+VERCEL_API_URL = "https://a-day-companion.vercel.app/api/chat"
 
 def init_db():
     with sqlite3.connect(DB_FILE) as conn:
@@ -76,20 +77,8 @@ def get_latest_journal_context(user_id):
         return None
     return None
 
-def get_client():
-    api_key = os.getenv("OPENROUTER_API_KEY")
-    if not api_key:
-        return None
-    return OpenAI(
-        api_key=api_key,
-        base_url="https://openrouter.ai/api/v1",
-    )
-
 def ask_ai(user_id, prompt):
     init_db()
-    client = get_client()
-    if not client:
-        return "AI Error: API Key missing."
     if daily_count(user_id) >= MAX_DAILY_PROMPTS:
         return "Daily limit reached (30)."
     profile = get_profile(user_id)
@@ -112,13 +101,14 @@ def ask_ai(user_id, prompt):
     messages.extend(load_memory(user_id))
     messages.append({"role": "user", "content": prompt})
     try:
-        response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo",
-            messages=messages,
-            temperature=0.7,
-            max_tokens=600,
-        )
-        reply = response.choices[0].message.content
+        payload = {
+            "model": "openai/gpt-3.5-turbo",
+            "messages": messages
+        }
+        response = requests.post(VERCEL_API_URL, json=payload)
+        response.raise_for_status() 
+        data = response.json()
+        reply = data['choices'][0]['message']['content']
         save_memory(user_id, "user", prompt)
         save_memory(user_id, "assistant", reply)
         increment_count(user_id)
@@ -129,21 +119,19 @@ def ask_ai(user_id, prompt):
 def analyze_sentiment(user_id, journal_text):
     if not journal_text or len(journal_text.split()) < 5:
         return None
-    client = get_client()
-    if not client:
-        return None
     prompt = (
         f"Journal Entry: '{journal_text}'\n"
         "Return ONLY raw JSON with keys: mood (str), score (1-10), advice (str).Be warm and motivating."
     )
     try:
-        response = client.chat.completions.create(
-            model="openai/gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}],
-            temperature=0.5,
-            max_tokens=250,
-        )
-        text_response = response.choices[0].message.content.strip()
+        payload = {
+            "model": "openai/gpt-3.5-turbo",
+            "messages": [{"role": "user", "content": prompt}]
+        }
+        response = requests.post(VERCEL_API_URL, json=payload)
+        response.raise_for_status()
+        data = response.json()
+        text_response = data['choices'][0]['message']['content'].strip()
         cleaned_response = (
             text_response.replace("```json", "").replace("```", "").strip()
         )

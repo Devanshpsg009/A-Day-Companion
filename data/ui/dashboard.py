@@ -145,13 +145,7 @@ class DashboardApp(ctk.CTk):
             (0, 1, self.calc_img, "Calculator", CalculatorApp),
             (1, 0, self.clock_img, "Focus Timer", FocusTimerApp),
             (1, 1, self.insights_img, "Insights", self.open_insights),
-            (
-                2,
-                0,
-                self.todo_img,
-                "To-Do List",
-                lambda: TodoApp(self.user_id, self.refresh_global),
-            ),
+            (2, 0, self.todo_img, "To-Do List", lambda: TodoApp(self.user_id, self.refresh_global)),
             (2, 1, self.journal_img, "Journal", lambda: JournalApp(self.user_id)),
             (3, 0, self.chess_img, "Chess", self.open_chess),
             (3, 1, self.health_img, "Digital Wellbeing", self.health_tracker.show_window),
@@ -172,14 +166,7 @@ class DashboardApp(ctk.CTk):
         self.update_clock()
 
     def open_ai_chat(self):
-        key = os.getenv("OPENROUTER_API_KEY")
-        (
             AIChat(self.user_id)
-            if key
-            else messagebox.showerror(
-                "API Key Missing", "AI features requires an API key."
-            )
-        )
 
     def refresh_global(self):
         self.update_streak_ui()
