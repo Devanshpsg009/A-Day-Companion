@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>A Day Companion - Dashboard</title>
+  <link rel="stylesheet" href="css/dashboard.css" />
+</head>
+<body>
+
+  <div class="modal-overlay" id="task-modal">
+    <div class="modal-box">
+      <div class="modal-title">➕ Add New Task</div>
+
+      <div class="field">
+        <label>Task Name</label>
+        <input id="task-name-input" type="text" placeholder="e.g. Write assignment draft" />
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="task-category">
+            <option>Work</option>
+            <option>Study</option>
+            <option>Personal</option>
+            <option>Fitness</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Priority</label>
+          <select id="task-priority">
+            <option>High</option>
+            <option>Medium</option>
+            <option>Low</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>Time to Complete</label>
+          <input id="task-time" type="text" placeholder="e.g. 1h 30m" />
+        </div>
+        <div class="field">
+          <label>Due Date</label>
+          <input id="task-due" type="date" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Notes (optional)</label>
+        <textarea id="task-notes" placeholder="Any extra details..."></textarea>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-save"   onclick="saveTask()">Save Task</button>
+      </div>
+    </div>
+  </div>
+
+  <aside class="sidebar">
+    <div class="logo">A Day<span> Companion</span></div>
+
+    <div class="sidebar-section-label">Navigation</div>
+    <div class="sidebar-item" onclick="window.location.href='index.html'" style="background: #F0F3FA; border: 1px solid #E4E8F3;">🏠 Go to Home</div>
+
+    <div class="sidebar-section-label">Main Menu</div>
+    <div class="sidebar-item active" onclick="showSection('tasks', this)">📋 My Tasks</div>
+    <div class="sidebar-item"        onclick="showSection('timer', this)">⏱️ Focus Timer</div>
+    <div class="sidebar-item"        onclick="showSection('journal', this)">📓 Journal</div>
+    <div class="sidebar-item"        onclick="showSection('health', this)">💧 Health Hub</div>
+    <div class="sidebar-item"        onclick="window.location.href='ai.html'">🤖 AI Chat</div>
+    <div class="sidebar-item">
+      🔔 Reminders
+      <span class="badge">3</span>
+    </div>
+
+    <div class="sidebar-section-label">Categories</div>
+    <div class="sidebar-item"><span class="dot" style="background:#3B6FE8"></span> Work</div>
+    <div class="sidebar-item"><span class="dot" style="background:#22C08B"></span> Personal</div>
+    <div class="sidebar-item"><span class="dot" style="background:#F5A623"></span> Study</div>
+    <div class="sidebar-item"><span class="dot" style="background:#E8536A"></span> Fitness</div>
+  </aside>
+
+  <div class="main">
+
+    <header class="topbar">
+      <div class="topbar-title" id="topbar-title">MY DASHBOARD</div>
+      <div class="topbar-actions">
+        <button class="btn-outline" onclick="openModal()">+ New Task</button>
+        <button class="btn-blue"    onclick="startTimerFromTop()">▶ Start Timer</button>
+        <button class="notif-btn">🔔<span class="notif-dot"></span></button>
+        <div class="avatar">SS</div>
+      </div>
+    </header>
+
+    <div id="success-msg">✅ Task added!</div>
+
+    <div class="content">
+
+      <div class="greeting">
+        <h2 id="app-greeting">Good Morning, Surya! 👋</h2>
+        <p>Here's your task status today.</p>
+      </div>
+
+      <div id="section-tasks" class="section active">
+
+        <div class="stat-row">
+          <div class="stat-card">
+            <div class="stat-icon blue">📋</div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-total">0</div>
+              <div class="stat-lbl">Total Tasks</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon green">✅</div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-completed-pct">0%</div>
+              <div class="stat-lbl">Completed</div>
+              <div class="progress-bar">
+                <div class="progress-fill" id="stat-bar" style="width:0%"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon orange">⏰</div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-due-today">00</div>
+              <div class="stat-lbl">Due Today</div>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon purple">⏱️</div>
+            <div class="stat-info">
+              <div class="stat-val" id="stat-tracked">0m</div>
+              <div class="stat-lbl">Time Tracked</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2>My Tasks</h2>
+          </div>
+
+          <div class="tabs">
+            <button class="tab active" onclick="filterTasks('all',   this)">All Tasks</button>
+            <button class="tab"        onclick="filterTasks('high',  this)">⚠ High Priority</button>
+            <button class="tab"        onclick="filterTasks('today', this)">🔴 Due Today</button>
+            <button class="tab"        onclick="filterTasks('done',  this)">✅ Completed</button>
+          </div>
+
+          <table>
+            <thead>
+              <tr>
+                <th>Task Name</th>
+                <th>Priority</th>
+                <th>Time Allotted</th>
+                <th>Due Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="task-tbody"></tbody>
+          </table>
+        </div>
+
+        <div class="card-row-header">
+          <h2>Active Categories</h2>
+          <a href="#">View All →</a>
+        </div>
+
+        <div class="category-cards">
+
+          <div class="cat-card">
+            <div class="cat-top">
+              <span class="dot blue"></span>
+              <span class="pill high">3 tasks</span>
+            </div>
+            <div class="cat-title">Work</div>
+            <div class="cat-desc">Reports, emails, meetings and deep work sessions.</div>
+            <div class="donut-row">
+              <div class="donut">
+                <svg viewBox="0 0 36 36" width="56" height="56">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#E4E8F3" stroke-width="4"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#3B6FE8" stroke-width="4" stroke-dasharray="65 100" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label">65%</div>
+              </div>
+              <div>
+                <div class="donut-done">65% done</div>
+                <div class="donut-sub">2 of 3 tasks</div>
+              </div>
+            </div>
+            <div class="cat-meta">
+              <span>📅 Due Feb 15</span>
+              <span>⏱ 4h left</span>
+            </div>
+            <div class="cat-footer">
+              <div class="avatar-stack"><div class="av">S</div></div>
+              <button class="btn-sm">View Details</button>
+            </div>
+          </div>
+
+          <div class="cat-card">
+            <div class="cat-top">
+              <span class="dot green"></span>
+              <span class="pill medium">4 tasks</span>
+            </div>
+            <div class="cat-title">Study</div>
+            <div class="cat-desc">Courses, reading, notes, and exam preparation.</div>
+            <div class="donut-row">
+              <div class="donut">
+                <svg viewBox="0 0 36 36" width="56" height="56">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#E4E8F3" stroke-width="4"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#22C08B" stroke-width="4" stroke-dasharray="50 100" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label" style="color:#22C08B">50%</div>
+              </div>
+              <div>
+                <div class="donut-done">50% done</div>
+                <div class="donut-sub">2 of 4 tasks</div>
+              </div>
+            </div>
+            <div class="cat-meta">
+              <span>📅 Due Feb 20</span>
+              <span>⏱ 6h left</span>
+            </div>
+            <div class="cat-footer">
+              <div class="avatar-stack"><div class="av">S</div></div>
+              <button class="btn-sm">View Details</button>
+            </div>
+          </div>
+
+          <div class="cat-card">
+            <div class="cat-top">
+              <span class="dot orange"></span>
+              <span class="pill low">2 tasks</span>
+            </div>
+            <div class="cat-title">Personal</div>
+            <div class="cat-desc">Health, fitness, habits, and personal errands.</div>
+            <div class="donut-row">
+              <div class="donut">
+                <svg viewBox="0 0 36 36" width="56" height="56">
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#E4E8F3" stroke-width="4"/>
+                  <circle cx="18" cy="18" r="14" fill="none" stroke="#F5A623" stroke-width="4" stroke-dasharray="80 100" stroke-linecap="round"/>
+                </svg>
+                <div class="donut-label" style="color:#F5A623">80%</div>
+              </div>
+              <div>
+                <div class="donut-done">80% done</div>
+                <div class="donut-sub">1 of 2 tasks</div>
+              </div>
+            </div>
+            <div class="cat-meta">
+              <span>📅 Daily</span>
+              <span>⏱ 1h left</span>
+            </div>
+            <div class="cat-footer">
+              <div class="avatar-stack"><div class="av">S</div></div>
+              <button class="btn-sm">View Details</button>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div id="section-timer" class="section">
+        <div class="panel">
+
+          <div class="mode-btns">
+            <button class="mode-btn active" onclick="setTimerMode(25*60, 'Focus', this)">🎯 Focus (25m)</button>
+            <button class="mode-btn"        onclick="setTimerMode(5*60,  'Short Break', this)">☕ Short Break (5m)</button>
+            <button class="mode-btn"        onclick="setTimerMode(15*60, 'Long Break', this)">🌿 Long Break (15m)</button>
+            <button class="mode-btn"        onclick="setTimerMode(0,     'Stopwatch', this)">⏱ Stopwatch</button>
+          </div>
+
+          <div class="timer-wrap">
+            <div class="timer-box">
+              <div class="timer-liquid" id="timer-liquid"></div>
+              <div class="timer-inner">
+                <div class="timer-emoji" id="timer-emoji">🎯</div>
+                <div class="timer-time"  id="timer-display">25:00</div>
+                <div class="timer-label" id="timer-label">Focus Mode — Ready to start</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="timer-btns">
+            <button class="btn-blue"  onclick="startTimer()">▶ Start</button>
+            <button class="btn-white" onclick="pauseTimer()">⏸ Pause</button>
+            <button class="btn-red"   onclick="resetTimer()">↺ Reset</button>
+          </div>
+
+        </div>
+      </div>
+
+      <div id="section-journal" class="section">
+        <div class="panel">
+          <h3>📝 New Entry</h3>
+          <p class="hint">How are you feeling?</p>
+
+          <div class="mood-row">
+            <button class="mood-btn" onclick="selectMood(this)">😊</button>
+            <button class="mood-btn" onclick="selectMood(this)">😌</button>
+            <button class="mood-btn" onclick="selectMood(this)">😤</button>
+            <button class="mood-btn" onclick="selectMood(this)">😔</button>
+            <button class="mood-btn" onclick="selectMood(this)">😴</button>
+            <button class="mood-btn" onclick="selectMood(this)">🤩</button>
+          </div>
+
+          <textarea id="journal-input" placeholder="What's on your mind today?"></textarea>
+          <button class="btn-blue" onclick="saveJournalEntry()">💾 Save Entry</button>
+        </div>
+
+        <div class="panel">
+          <h3>📚 Past Entries</h3>
+          <div id="journal-entries">
+            <div class="journal-card">
+              <div class="journal-top">
+                <span class="journal-date">Jan 24, 2025</span>
+                <span>😊</span>
+              </div>
+              <p>Had a really productive day today. Finished the project report and even managed to squeeze in a workout.</p>
+              <div class="tag-row">
+                <span class="tag">#productive</span>
+                <span class="tag">#workout</span>
+                <span class="tag">#focused</span>
+              </div>
+            </div>
+
+            <div class="journal-card">
+              <div class="journal-top">
+                <span class="journal-date">Jan 23, 2025</span>
+                <span>😌</span>
+              </div>
+              <p>Slower day but that's okay. Read 30 pages of Atomic Habits and it genuinely changed how I think about small habits.</p>
+              <div class="tag-row">
+                <span class="tag">#reading</span>
+                <span class="tag">#habits</span>
+                <span class="tag">#rest</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="section-health" class="section">
+        <div class="panel">
+          <h3>💧 Water Intake — <span id="water-count">0</span> / 8 glasses</h3>
+          <p class="hint">Click a glass to log water intake</p>
+          <div class="water-row" id="water-row"></div>
+        </div>
+
+        <div class="panel">
+          <h3>🏃 Exercise Checklist</h3>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-check"></div>
+            <span>🏃 Morning run (30 min)</span>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-check"></div>
+            <span>💪 Push-ups (3 sets of 15)</span>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-check"></div>
+            <span>🧘 Stretching / Yoga (15 min)</span>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-check"></div>
+            <span>🚶 Evening walk (20 min)</span>
+          </div>
+          <div class="exercise-item" onclick="toggleExercise(this)">
+            <div class="ex-check"></div>
+            <span>🏋️ Weight training (45 min)</span>
+          </div>
+        </div>
+
+        <div class="panel">
+          <h3>😴 Sleep Log</h3>
+          <p class="hint">How many hours did you sleep last night?</p>
+          <div class="sleep-row">
+            <div class="sleep-track-wrap">
+              <div class="sleep-track"></div>
+              <div class="sleep-fill" id="sleep-fill" style="width:58.33%"></div>
+              <input type="range" id="sleep-slider" min="0" max="12" value="7" step="0.5" oninput="updateSleep(this.value)" />
+            </div>
+            <span class="sleep-value" id="sleep-display">7h</span>
+          </div>
+          <p class="sleep-msg" id="sleep-msg">Good — you got enough rest!</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <script src="js/dashboard.js"></script>
+</body>
+</html>

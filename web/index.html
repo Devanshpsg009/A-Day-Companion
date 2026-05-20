@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A Day Companion - Home</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="css/landing.css">
+</head>
+<body>
+    
+    <div class="blob blob-1"></div>
+    <div class="blob blob-2"></div>
+    <div class="blob blob-3"></div>
+    <div class="blob blob-4"></div>
+
+    <nav id="navbar">
+        <a href="#" class="nav-logo">
+            <div class="nav-logo-icon">✨</div>
+            <span class="nav-logo-text">A Day Companion</span>
+        </a>
+        <div class="nav-links" id="nav-links">
+            <button class="nav-link" data-scroll="features">Features</button>
+            <button class="nav-link" data-scroll="how">How it Works</button>
+            <button class="nav-link" data-scroll="tutorials">Tutorials</button>
+            <button class="nav-link" data-scroll="faq">FAQ</button>
+            <button class="nav-link" data-scroll="download">Download</button>
+        </div>
+        <button class="nav-hamburger" id="nav-hamburger">
+            <span></span><span></span><span></span>
+        </button>
+        <button class="nav-cta" id="nav-cta" onclick="window.location.href='dashboard.html'">Open Dashboard</button>
+    </nav>
+
+    <section id="hero">
+        <canvas id="hero-canvas" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;"></canvas>
+        
+        <div class="hero-badge fade-up">
+            <div class="hero-badge-dot"></div>
+            Your All-in-One Productivity Hub
+        </div>
+        
+        <h1 class="hero-title fade-up stagger-1">
+            Your workspace for <br>
+            <span id="typed-text" style="color: #a78bfa;"></span>
+        </h1>
+        
+        <p class="hero-sub fade-up stagger-2">
+            Combine your to-do lists, focus timers, daily journals, and personal AI into one seamless, beautiful dashboard.
+        </p>
+        
+        <div class="hero-btns fade-up stagger-3">
+            <a href="dashboard.html" class="btn-primary">Launch Dashboard</a>
+            <a href="ai.html" class="btn-secondary">Try AI Companion</a>
+        </div>
+
+        <div class="hero-stats fade-up stagger-4">
+            <div class="hero-stat">
+                <div class="hero-stat-num" style="font-size: 1.8rem; margin-bottom: 8px;">🔒</div>
+                <div class="hero-stat-label">Privacy First (Local Data)</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-num" style="font-size: 1.8rem; margin-bottom: 8px;">⚡</div>
+                <div class="hero-stat-label">Fast & Lightweight</div>
+            </div>
+            <div class="hero-stat">
+                <div class="hero-stat-num" style="font-size: 1.8rem; margin-bottom: 8px;">🌐</div>
+                <div class="hero-stat-label">Offline Capable</div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="section">
+        <div class="section-inner">
+            <span class="section-tag">Features</span>
+            <h2 class="section-title">Everything you need in one place.</h2>
+            <p class="section-sub">Ditch the tab clutter. We brought all your essential productivity and wellness tools into a single, cohesive ecosystem.</p>
+            
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon">⏱️</div>
+                    <h3 class="feature-title">Focus Timer</h3>
+                    <p class="feature-desc">Stay in the zone with built-in Pomodoro timers and stopwatches. Customize your work and break intervals.</p>
+                    <span class="feature-tag glass">Productivity</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">📓</div>
+                    <h3 class="feature-title">Daily Journal</h3>
+                    <p class="feature-desc">Track your mood, reflect on your day, and add custom tags so you can easily search past entries.</p>
+                    <span class="feature-tag glass">Wellness</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">🤖</div>
+                    <h3 class="feature-title">AI Companion</h3>
+                    <p class="feature-desc">A smart, dedicated AI assistant ready to help you brainstorm, write code, or just chat when you need it.</p>
+                    <span class="feature-tag glass">Smart</span>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon">💧</div>
+                    <h3 class="feature-title">Health Hub</h3>
+                    <p class="feature-desc">Don't forget to take care of yourself. Track your water intake, sleep patterns, and daily stretching routines.</p>
+                    <span class="feature-tag glass">Health</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="preview" class="section">
+        <div class="section-inner">
+            <span class="section-tag">Preview</span>
+            <h2 class="section-title">A look inside the dashboard.</h2>
+            
+            <div class="preview-tabs">
+                <button class="preview-tab active" data-tab="dashboard">Dashboard Overview</button>
+                <button class="preview-tab" data-tab="ai">AI Interface</button>
+            </div>
+
+            <div class="preview-screen active" id="screen-dashboard">
+                <div class="mock-header">
+                    <div class="mock-dot" style="background: #ef4444;"></div>
+                    <div class="mock-dot" style="background: #eab308;"></div>
+                    <div class="mock-dot" style="background: #22c55e;"></div>
+                </div>
+                <div class="mock-ui text-center" style="padding: 100px 20px;">
+                    <h3 style="color: #f8fafc; font-size: 1.5rem; margin-bottom: 10px;">The Ultimate Command Center</h3>
+                    <p>Clean UI, intuitive controls, and distraction-free design.</p>
+                </div>
+            </div>
+            
+            <div class="preview-screen" id="screen-ai">
+                <div class="mock-header">
+                    <div class="mock-dot" style="background: #ef4444;"></div>
+                    <div class="mock-dot" style="background: #eab308;"></div>
+                    <div class="mock-dot" style="background: #22c55e;"></div>
+                </div>
+                <div class="mock-ui text-center" style="padding: 100px 20px;">
+                    <h3 style="color: #f8fafc; font-size: 1.5rem; margin-bottom: 10px;">Your Personal AI Assistant</h3>
+                    <p>Powered by OpenRouter, directly integrated into your workflow.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="how" class="section">
+        <div class="section-inner text-center">
+            <span class="section-tag">Workflow</span>
+            <h2 class="section-title">How it works</h2>
+            
+            <div class="steps-grid">
+                <div class="step-card fade-up stagger-1">
+                    <div class="step-num">1</div>
+                    <h3 class="step-title">Set your goals</h3>
+                    <p class="step-desc">Input your tasks for the day and organize them by priority.</p>
+                </div>
+                <div class="step-card fade-up stagger-2">
+                    <div class="step-num">2</div>
+                    <h3 class="step-title">Start the timer</h3>
+                    <p class="step-desc">Jump into focus mode and eliminate all distractions.</p>
+                </div>
+                <div class="step-card fade-up stagger-3">
+                    <div class="step-num">3</div>
+                    <h3 class="step-title">Track & Reflect</h3>
+                    <p class="step-desc">Log your health metrics and write down your thoughts.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tutorials" class="section">
+        <div class="section-inner">
+            <span class="section-tag">Learn</span>
+            <h2 class="section-title">Master your day.</h2>
+            
+            <div class="tutorial-grid">
+                <div class="tutorial-card fade-up" data-tutorial="Getting started with Tasks">
+                    <div class="tutorial-thumb">
+                        <div class="tutorial-thumb-bg">📋</div>
+                        <div class="tutorial-play-btn">▶</div>
+                        <div class="tutorial-duration">2:15</div>
+                    </div>
+                    <div class="tutorial-info">
+                        <h3 class="tutorial-title">Getting started with Tasks</h3>
+                        <p class="tutorial-desc">Learn how to organize your day effectively.</p>
+                    </div>
+                </div>
+                <div class="tutorial-card fade-up stagger-1" data-tutorial="Using the AI Chatbot">
+                    <div class="tutorial-thumb">
+                        <div class="tutorial-thumb-bg">🤖</div>
+                        <div class="tutorial-play-btn">▶</div>
+                        <div class="tutorial-duration">4:30</div>
+                    </div>
+                    <div class="tutorial-info">
+                        <h3 class="tutorial-title">Using the AI Chatbot</h3>
+                        <p class="tutorial-desc">Maximize your productivity with AI prompts.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="download" class="section">
+        <div class="section-inner">
+            <span class="section-tag">Install</span>
+            <h2 class="section-title">Take it offline.</h2>
+            <p class="section-sub">Prefer a desktop app? Download A Day Companion for your OS.</p>
+            
+            <div class="platform-grid">
+                <a href="https://github.com/Devanshpsg009/A-Day-Companion/releases/download/A_Day_Companion/A.Day.Companion.exe" class="platform-card fade-up">
+                    <span class="platform-emoji">🪟</span>
+                    <h3 class="platform-name">Windows</h3>
+                    <p class="platform-info">.exe installer · 64-bit</p>
+                    <span class="platform-btn" style="background: #2563eb; color: #fff;">Download</span>
+                </a>
+                <a href="https://github.com/Devanshpsg009/A-Day-Companion/releases/download/A_Day_Companion/A.Day.Companion.app.zip" class="platform-card fade-up stagger-1">
+                    <span class="platform-emoji">🍎</span>
+                    <h3 class="platform-name">macOS</h3>
+                    <p class="platform-info">Intel & Apple Silicon</p>
+                    <span class="platform-btn" style="background: #475569; color: #fff;">Download</span>
+                </a>
+                <a href="https://github.com/Devanshpsg009/A-Day-Companion/releases/download/A_Day_Companion/A.Day.Companion.deb" class="platform-card fade-up stagger-2">
+                    <span class="platform-emoji">🐧</span>
+                    <h3 class="platform-name">Linux</h3>
+                    <p class="platform-info">.deb package</p>
+                    <span class="platform-btn" style="background: #ea580c; color: #fff;">Download</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section id="faq" class="section">
+        <div class="section-inner">
+            <h2 class="section-title text-center">Frequently Asked Questions</h2>
+            
+            <div class="faq-list" style="margin: 40px auto 0;">
+                <div class="faq-item fade-up">
+                    <button class="faq-q">Do I need to create an account? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>No account is required! A Day Companion runs directly in your browser and stores your data locally.</p></div>
+                </div>
+                <div class="faq-item fade-up">
+                    <button class="faq-q">Is the AI completely free? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>Yes, the AI integration utilizes your custom API key (like OpenRouter) so you maintain full control over your usage and data.</p></div>
+                </div>
+                <div class="faq-item fade-up">
+                    <button class="faq-q">Where is my journal data stored? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>All your tasks, journal entries, and health data are stored safely in your browser's local storage for maximum privacy and speed.</p></div>
+                </div>
+                <div class="faq-item fade-up">
+                    <button class="faq-q">Which AI models can I use? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>Through OpenRouter, you can easily switch between industry-leading models like GPT-3.5 Turbo, Claude 3 Haiku, and Llama 3.</p></div>
+                </div>
+                <div class="faq-item fade-up">
+                    <button class="faq-q">How does the Focus Timer work? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>It uses the Pomodoro technique. By default, it sets a 25-minute focus session followed by a 5-minute break, helping you avoid burnout.</p></div>
+                </div>
+                <div class="faq-item fade-up">
+                    <button class="faq-q">Can I use this on my phone? <span class="faq-chevron">▼</span></button>
+                    <div class="faq-a"><p>Absolutely. The web dashboard is fully responsive and designed to work beautifully on mobile devices.</p></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="cta">
+        <h2 class="cta-title fade-up">Ready to own your day?</h2>
+        <p class="cta-sub fade-up stagger-1">No sign-up required. Jump straight into the dashboard.</p>
+        <button class="btn-primary fade-up stagger-2" onclick="window.location.href='dashboard.html'">Get Started Now</button>
+    </section>
+
+    <footer>
+        <div class="footer-inner">
+            <div class="footer-top">
+                <div class="footer-brand">
+                    <div style="font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.2rem; color: #fff;">✨ A Day Companion</div>
+                    <p>Your ultimate workspace for productivity, wellness, and AI assistance.</p>
+                </div>
+                <div>
+                    <h4 class="footer-col-title">Product</h4>
+                    <ul class="footer-links">
+                        <li><a href="dashboard.html">Dashboard</a></li>
+                        <li><a href="ai.html">AI Chat</a></li>
+                        <li><a href="#download">Downloads</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="footer-col-title">Resources</h4>
+                    <ul class="footer-links">
+                        <li><a href="#how">How it Works</a></li>
+                        <li><a href="#tutorials">Tutorials</a></li>
+                        <li><a href="#faq">FAQ</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <div class="footer-copy">&copy; 2026 A Day Companion. All rights reserved.</div>
+            </div>
+        </div>
+    </footer>
+
+    <div class="video-modal-overlay" id="video-modal" style="display: none;">
+        <div class="video-modal">
+            <div class="video-modal-header">
+                <h3 class="video-modal-title" id="video-modal-title">Tutorial</h3>
+                <button class="video-modal-close" id="video-modal-close">✕</button>
+            </div>
+            <div class="video-embed">
+                <div class="video-placeholder">
+                    <div class="video-placeholder-icon">▶</div>
+                    <p>Video playback area.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/landing.js"></script>
+</body>
+</html>
