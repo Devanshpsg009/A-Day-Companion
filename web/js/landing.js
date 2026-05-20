@@ -12,8 +12,7 @@
             return;
         }
 
-        // React nav bridge can appear slightly after landing scripts.
-        // Retry briefly so "Try Now" still works on first click.
+        
         let attempts = 0;
         const timer = setInterval(() => {
             attempts += 1;
@@ -30,7 +29,7 @@
         }, 100);
     };
 
-    /* ════════════ NAVBAR ════════════ */
+    
     function initNavbar() {
         const navbar = $('navbar');
         const hamburger = $('nav-hamburger');
@@ -44,7 +43,7 @@
             navLinks.classList.toggle('open');
         });
 
-        // Smooth scroll for anchor links
+        
         document.querySelectorAll('[data-scroll]').forEach(el => {
             el.addEventListener('click', () => {
                 const target = document.getElementById(el.dataset.scroll);
@@ -53,17 +52,17 @@
             });
         });
 
-        // Nav CTA
+        
         const navCta = $('nav-cta');
         navCta && navCta.addEventListener('click', () => nav('try'));
 
-        // Nav Try Now
+        
         document.querySelectorAll('[data-nav]').forEach(el => {
             el.addEventListener('click', () => nav(el.dataset.nav));
         });
     }
 
-    /* ════════════ FADE-UP OBSERVER ════════════ */
+    
     function initScrollAnimations() {
         const io = new IntersectionObserver((entries) => {
             entries.forEach(e => {
@@ -77,7 +76,7 @@
         document.querySelectorAll('.fade-up').forEach(el => io.observe(el));
     }
 
-    /* ════════════ COUNTER ANIMATION ════════════ */
+    
     function animateCounters() {
         document.querySelectorAll('[data-count]').forEach(el => {
             const target = parseInt(el.dataset.count);
@@ -92,7 +91,7 @@
         });
     }
 
-    /* ════════════ PREVIEW TABS ════════════ */
+    
     function initPreviewTabs() {
         const tabs = document.querySelectorAll('.preview-tab');
         const screens = document.querySelectorAll('.preview-screen');
@@ -108,7 +107,7 @@
         });
     }
 
-    /* ════════════ FAQ ACCORDION ════════════ */
+    
     function initFAQ() {
         document.querySelectorAll('.faq-item').forEach(item => {
             const btn = item.querySelector('.faq-q');
@@ -180,7 +179,7 @@
         });
     }
 
-    /* ════════════ TYPED HEADLINE ════════════ */
+    
     function initTyped() {
         const el = $('typed-text');
         if (!el) return;
@@ -197,7 +196,7 @@
         tick();
     }
 
-    /* ════════════ INIT ════════════ */
+    
     document.addEventListener('DOMContentLoaded', () => {
         initNavbar();
         initScrollAnimations();
@@ -207,7 +206,7 @@
         initParticles();
         initTyped();
 
-        // Counter trigger on scroll
+        
         const statsSection = $('stats-section');
         if (statsSection) {
             const io = new IntersectionObserver(entries => {

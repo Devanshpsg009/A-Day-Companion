@@ -1,4 +1,4 @@
-/* ── Base ── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
@@ -88,7 +88,7 @@ body {
 .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 @keyframes typingAnim { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
 
-/* Pulse ring for badges */
+
 @keyframes pulseRing {
     0%   { transform: scale(1); opacity: 0.8; }
     50%  { transform: scale(1.5); opacity: 0; }
@@ -176,7 +176,7 @@ body {
 }
 .nav-cta:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99,102,241,0.55); }
 
-/* Mobile nav toggle */
+
 .nav-hamburger {
     display: none;
     flex-direction: column;
@@ -289,7 +289,7 @@ body {
 }
 .btn-secondary:hover { background: rgba(255,255,255,0.1); border-color: rgba(99,102,241,0.5); transform: translateY(-2px); }
 
-/* Hero stats bar */
+
 .hero-stats {
     display: flex;
     gap: 40px;
@@ -315,7 +315,7 @@ body {
 }
 .hero-stat-label { font-size: 0.78rem; color: #64748b; margin-top: 4px; }
 
-/* ── Section base ── */
+
 .section {
     padding: 100px 24px;
     position: relative;
@@ -430,7 +430,7 @@ body {
 }
 .preview-screen.active { display: block; }
 
-/* Mock UI inside preview */
+
 .mock-ui {
     padding: 20px;
     font-size: 0.82rem;
@@ -488,7 +488,7 @@ body {
 .step-title { font-size: 1rem; font-weight: 700; color: #f1f5f9; margin-bottom: 8px; }
 .step-desc { font-size: 0.855rem; color: #64748b; line-height: 1.6; }
 
-/* ── Tutorial Video Section ── */
+
 #tutorials { background: #0f172a; }
 .tutorial-grid {
     display: grid;
@@ -552,7 +552,7 @@ body {
 .tutorial-title { font-size: 0.9rem; font-weight: 600; color: #f1f5f9; margin-bottom: 4px; }
 .tutorial-desc { font-size: 0.8rem; color: #64748b; line-height: 1.5; }
 
-/* Video modal */
+
 .video-modal-overlay {
     position: fixed; inset: 0; z-index: 1100;
     background: rgba(0,0,0,0.88);
@@ -632,7 +632,7 @@ body {
 .testi-name { font-size: 0.875rem; font-weight: 600; color: #f1f5f9; }
 .testi-role { font-size: 0.75rem; color: #64748b; }
 
-/* ── Platform/Download ── */
+
 #download { background: #0f172a; }
 .platform-grid {
     display: grid;
@@ -775,10 +775,10 @@ footer {
 }
 .footer-social-btn:hover { background: rgba(99,102,241,0.15); border-color: rgba(99,102,241,0.3); color: #a5b4fc; }
 
-/* ── Dashboard (app view) ── */
+
 .dashboard-wrap { min-height: 100vh; padding: 24px; }
 
-/* ── Modals (Try Now, AI) ── */
+
 .trynow-overlay {
     position: fixed; inset: 0; z-index: 1200;
     background: rgba(0,0,0,0.75);
